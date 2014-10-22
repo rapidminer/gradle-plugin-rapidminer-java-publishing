@@ -85,23 +85,25 @@ class RapidMinerJavaPublishingPlugin implements Plugin<Project> {
 						artifact tasks.sourceJar 
 						
 				        // Hack to ensure that the generated POM file contains the correct exclusion patterns.
-				        // TODO can be removed with Gradle 2.1
-				        project.configurations[JavaPlugin.RUNTIME_CONFIGURATION_NAME].allDependencies.findAll {  
-				            it instanceof ModuleDependency && !it.excludeRules.isEmpty()  
-				        }.each { ModuleDependency dep ->  
-				            pom.withXml {  
-				                def xmlDep = asNode().dependencies.dependency.find {  
-				                    it.groupId[0].text() == dep.group && it.artifactId[0].text() == dep.name  
-				                }  
-				                def xmlExclusions = xmlDep.exclusions[0]  
-				                if (!xmlExclusions) xmlExclusions = xmlDep.appendNode('exclusions')
-				                dep.excludeRules.each { ExcludeRule rule ->  
-				                    def xmlExclusion = xmlExclusions.appendNode('exclusion')  
-				                    xmlExclusion.appendNode('groupId', rule.group)  
-				                    xmlExclusion.appendNode('artifactId', rule.module)  
-				                }  
-				            }  
-    					} 
+						// Has been fixed with Gradle 2.1
+						if(Double.valueOf(gradle.gradleVersion) < 2.1) {
+							project.configurations[JavaPlugin.RUNTIME_CONFIGURATION_NAME].allDependencies.findAll {  
+								it instanceof ModuleDependency && !it.excludeRules.isEmpty()  
+							}.each { ModuleDependency dep ->  
+								pom.withXml {  
+									def xmlDep = asNode().dependencies.dependency.find {  
+										it.groupId[0].text() == dep.group && it.artifactId[0].text() == dep.name  
+									}  
+									def xmlExclusions = xmlDep.exclusions[0]  
+									if (!xmlExclusions) xmlExclusions = xmlDep.appendNode('exclusions')
+									dep.excludeRules.each { ExcludeRule rule ->  
+										def xmlExclusion = xmlExclusions.appendNode('exclusion')  
+										xmlExclusion.appendNode('groupId', rule.group)  
+										xmlExclusion.appendNode('artifactId', rule.module)  
+									}  
+								}  
+							}
+						}						
 					}
 					javadocJar(org.gradle.api.publish.maven.MavenPublication) { artifact tasks.javadocJar }
 				}
