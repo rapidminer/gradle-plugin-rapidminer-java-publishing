@@ -43,7 +43,7 @@ class RapidMinerJavaPublishingPlugin implements Plugin<Project> {
 			apply plugin: 'maven-publish'
 
 			// create and configure sourceJar task
-			tasks.create(name: 'sourceJar', type: org.gradle.api.tasks.bundling.Jar)
+			tasks.create(name: 'sourceJar', type: org.gradle.api.tasks.bundling.Jar, dependsOn: classes)
 			sourceJar {
 				from sourceSets.main.allSource
 				classifier = 'sources'
@@ -78,34 +78,37 @@ class RapidMinerJavaPublishingPlugin implements Plugin<Project> {
 
 			publishing {
 				publications {
-					jar(org.gradle.api.publish.maven.MavenPublication) { 
-						from components.java 
+					jar(org.gradle.api.publish.maven.MavenPublication) {
+						if (plugins.hasPlugin('war')) {
+							from components.web
+						} else {
+							from components.java
+						}
 						
-						artifact tasks.testJar
-						artifact tasks.sourceJar 
-						
-				        // Hack to ensure that the generated POM file contains the correct exclusion patterns.
+						// Hack to ensure that the generated POM file contains the correct exclusion patterns.
 						// Has been fixed with Gradle 2.1
 						if(Double.valueOf(gradle.gradleVersion) < 2.1) {
-							project.configurations[JavaPlugin.RUNTIME_CONFIGURATION_NAME].allDependencies.findAll {  
-								it instanceof ModuleDependency && !it.excludeRules.isEmpty()  
-							}.each { ModuleDependency dep ->  
-								pom.withXml {  
-									def xmlDep = asNode().dependencies.dependency.find {  
-										it.groupId[0].text() == dep.group && it.artifactId[0].text() == dep.name  
-									}  
-									def xmlExclusions = xmlDep.exclusions[0]  
+							project.configurations[JavaPlugin.RUNTIME_CONFIGURATION_NAME].allDependencies.findAll {
+								it instanceof ModuleDependency && !it.excludeRules.isEmpty()
+							}.each { ModuleDependency dep ->
+								pom.withXml {
+									def xmlDep = asNode().dependencies.dependency.find {
+										it.groupId[0].text() == dep.group && it.artifactId[0].text() == dep.name
+									}
+									def xmlExclusions = xmlDep.exclusions[0]
 									if (!xmlExclusions) xmlExclusions = xmlDep.appendNode('exclusions')
-									dep.excludeRules.each { ExcludeRule rule ->  
-										def xmlExclusion = xmlExclusions.appendNode('exclusion')  
-										xmlExclusion.appendNode('groupId', rule.group)  
-										xmlExclusion.appendNode('artifactId', rule.module)  
-									}  
-								}  
+									dep.excludeRules.each { ExcludeRule rule ->
+										def xmlExclusion = xmlExclusions.appendNode('exclusion')
+										xmlExclusion.appendNode('groupId', rule.group)
+										xmlExclusion.appendNode('artifactId', rule.module)
+									}
+								}
 							}
-						}						
+						}
 					}
-					javadocJar(org.gradle.api.publish.maven.MavenPublication) { artifact tasks.javadocJar }
+					testJar(org.gradle.api.publish.maven.MavenPublication) { artifact tasks.testJar }
+					sourceJar(org.gradle.api.publish.maven.MavenPublication) { artifact tasks.sourceJar  }
+					javaDoc(org.gradle.api.publish.maven.MavenPublication) { artifact tasks.javadocJar }
 				}
 			}
 		}
