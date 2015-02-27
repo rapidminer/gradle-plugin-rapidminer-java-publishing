@@ -33,9 +33,6 @@ import org.gradle.api.plugins.JavaPlugin
  */
 class RapidMinerJavaPublishingPlugin implements Plugin<Project> {
 
-	private static final String ENCODING = 'UTF-8'
-	private static final String JAVA_COMPATIBILITY = JavaVersion.VERSION_1_7
-
 	@Override
 	void apply(Project project) {
 
