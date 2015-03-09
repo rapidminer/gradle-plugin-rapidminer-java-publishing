@@ -81,6 +81,8 @@ class RapidMinerJavaPublishingPlugin implements Plugin<Project> {
 						} else {
 							from components.java
 						}
+                        artifact tasks.testJar
+                        artifact tasks.sourceJar
 						
 						// Hack to ensure that the generated POM file contains the correct exclusion patterns.
 						// Has been fixed with Gradle 2.1
@@ -103,8 +105,6 @@ class RapidMinerJavaPublishingPlugin implements Plugin<Project> {
 							}
 						}
 					}
-					testJar(org.gradle.api.publish.maven.MavenPublication) { artifact tasks.testJar }
-					sourceJar(org.gradle.api.publish.maven.MavenPublication) { artifact tasks.sourceJar  }
 					javaDoc(org.gradle.api.publish.maven.MavenPublication) { artifact tasks.javadocJar }
 				}
 			}
