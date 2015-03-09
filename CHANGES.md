@@ -1,5 +1,8 @@
 ## Change Log
 
+#### 0.1.4
+* 
+
 #### 0.1.3
 * Removes Test and Source publishing tasks as they break dependency fetching. Instead they are also executed when publishing the Java Jar.
 
