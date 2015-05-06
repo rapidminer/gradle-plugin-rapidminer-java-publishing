@@ -1,7 +1,10 @@
 ## Change Log
 
-#### 0.1.4
-* 
+#### 0.2.0
+* Streamlined publishing configuration by adding a plugin extension called 'publication' that ships with highly opinionated default values 
+ (see README.md for more information on how to configure the extension)
+* The 'jar' publication is now called 'war' publication in case the 'war' plugin is applied
+* Removed javaDoc publication
 
 #### 0.1.3
 * Removes Test and Source publishing tasks as they break dependency fetching. Instead they are also executed when publishing the Java Jar.
