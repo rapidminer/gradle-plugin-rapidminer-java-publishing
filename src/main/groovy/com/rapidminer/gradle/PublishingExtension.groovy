@@ -7,6 +7,7 @@ package com.rapidminer.gradle
  *
  */
 class PublishingExtension {
+
     String baseUrl = 'https://maven.rapidminer.com/nexus/content/repositories/'
     Credentials credentials
 

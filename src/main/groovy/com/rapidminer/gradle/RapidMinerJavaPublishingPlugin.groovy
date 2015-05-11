@@ -20,7 +20,10 @@ import org.gradle.api.Project
 import org.gradle.api.artifacts.ExcludeRule
 import org.gradle.api.artifacts.ModuleDependency
 import org.gradle.api.plugins.JavaPlugin
+import org.gradle.api.publish.internal.DefaultPublishingExtension
 import org.gradle.api.publish.maven.MavenPublication
+import org.gradle.api.publish.plugins.PublishingPlugin
+import org.gradle.api.tasks.bundling.Jar
 
 /**
  * The java-publishing plugin that uses the 'maven-publish' plugin to preconfigure RapidMiner specific project publications.
@@ -30,22 +33,26 @@ import org.gradle.api.publish.maven.MavenPublication
  */
 class RapidMinerJavaPublishingPlugin implements Plugin<Project> {
 
+    protected Project project
+
     @Override
     void apply(Project project) {
+        this.project = project
+
         PublishingExtension extension = project.extensions.create('publication', PublishingExtension)
 
         project.configure(project) {
             apply plugin: 'maven-publish'
 
             // create and configure sourceJar task
-            tasks.create(name: 'sourceJar', type: org.gradle.api.tasks.bundling.Jar, dependsOn: classes)
+            tasks.create(name: 'sourceJar', type: Jar, dependsOn: classes)
             sourceJar {
                 from sourceSets.main.allSource
                 classifier = 'sources'
             }
 
             // create and configure javadocJar task
-            tasks.create(name: 'javadocJar', type: org.gradle.api.tasks.bundling.Jar, dependsOn: javadoc)
+            tasks.create(name: 'javadocJar', type: Jar, dependsOn: javadoc)
             javadocJar {
                 classifier = 'javadoc'
                 from javadoc.destinationDir
@@ -56,8 +63,8 @@ class RapidMinerJavaPublishingPlugin implements Plugin<Project> {
              */
             configurations { testArtifacts.extendsFrom testRuntime }
 
-            // create and configure testJar tasl
-            tasks.create(name: 'testJar', type: org.gradle.api.tasks.bundling.Jar) {
+            // create and configure testJar task
+            tasks.create(name: 'testJar', type: Jar) {
                 classifier 'test'
                 from sourceSets.test.output
             }
@@ -70,84 +77,75 @@ class RapidMinerJavaPublishingPlugin implements Plugin<Project> {
                 testArtifacts testJar
             }
 
-            afterEvaluate {
-                def isSnapshot = project.version.endsWith('-SNAPSHOT')
+            def isSnapshot = project.version.endsWith('-SNAPSHOT')
 
-                // In case no credentials are defined...
-                if (!extension.credentials) {
-                    project.logger.info "No credentials defined. Looking for 'nexusUser' and 'nexusPassword' project properties."
+            // In case no credentials are defined...
+            if (!extension.credentials) {
+                project.logger.info "No credentials defined. Looking for 'nexusUser' and 'nexusPassword' project properties."
 
-                    // .. check if nexusUser and nexusPassword project properties are set
-                    if (!project.hasProperty('nexusUser')) {
-                        project.logger.info "Project property 'nexusUser' not found. Remote Maven repository will not be configured!"
+                // .. check if nexusUser and nexusPassword project properties are set
+                if (!project.hasProperty('nexusUser')) {
+                    project.logger.info "Project property 'nexusUser' not found. Remote Maven repository will not be configured!"
+                } else {
+                    if (!project.hasProperty('nexusPassword')) {
+                        project.logger.info "Project property 'nexusPassword' not found. Remote Maven repository will not be configured!"
                     } else {
-                        if (!project.hasProperty('nexusPassword')) {
-                            project.logger.info "Project property 'nexusPassword' not found. Remote Maven repository will not be configured!"
-                        } else {
-                            extension.credentials = new Credentials(username: project.nexusUser, password: project.nexusPassword)
-                        }
+                        extension.credentials = new Credentials(username: project.nexusUser, password: project.nexusPassword)
                     }
                 }
+            }
 
-                publishing {
-                    if(!extension.baseUrl){
-                        project.logger.info 'No repository baseUrl defined. Skipping definition of remote Maven repository.'
-                    } else if(!extension.credentials) {
-                        project.logger.info 'No repository credentials defined. Skipping definition of remote Maven repository.'
-                    } else {
-                        repositories {
-                            maven {
-                                def repo = isSnapshot ? extension.snapshots.repo : extension.releases.repo
-                                url(extension.baseUrl.endsWith('/') ?: extension.baseUrl + '/') + repo
-                                credentials {
-                                    username = extension.credentials.username
-                                    password = extension.credentials.password
-                                }
-                            }
+            // Define basic jar or war publication
+            publishing {
+                publications {
+                    "${plugins.hasPlugin('war') ? 'war' : 'jar'}"(MavenPublication) {
+                        if (plugins.hasPlugin('war')) {
+                            from components.web
+                        } else {
+                            from components.java
                         }
+
+                        fixPomForOldGradleVersion(gradle, pom)
                     }
+                }
+            }
 
-                    publications {
-                        "${plugins.hasPlugin('war') ? 'war' : 'jar'}"(MavenPublication) {
-                            if (plugins.hasPlugin('war')) {
-                                from components.web
-                            } else {
-                                from components.java
-                            }
+            // Dynamically add artifacts to the Maven publication depending on the plugin extension configuration
+            withMavenPublication { MavenPublication mavenPub ->
+                if (isSnapshot) {
+                    addArtifactsDynamically mavenPub, extension.snapshots
+                } else {
+                    addArtifactsDynamically mavenPub, extension.releases
+                }
+            }
 
-                            if (isSnapshot) {
-                                if (extension.snapshots.publishTests) {
-                                    artifact tasks.testJar
-                                }
-                                if (extension.snapshots.publishJavaDoc) {
-                                    artifact tasks.javadocJar
-                                }
-                                if (extension.snapshots.publishSources) {
-                                    artifact tasks.sourceJar
-                                }
-                            } else {
-                                if (extension.releases.publishTests) {
-                                    artifact tasks.testJar
-                                }
-                                if (extension.releases.publishJavaDoc) {
-                                    artifact tasks.javadocJar
-                                }
-                                if (extension.releases.publishSources) {
-                                    artifact tasks.sourceJar
-                                }
-                            }
-
-                            fixPomForOldGradleVersion(project, gradle, pom)
-                        }
+            // Dynamically add Maven repository in case it is configured
+            if (!extension.baseUrl) {
+                project.logger.info 'No repository baseUrl defined. Skipping definition of remote Maven repository.'
+            } else if (!extension.credentials) {
+                project.logger.info 'No repository credentials defined. Skipping definition of remote Maven repository.'
+            } else {
+                def repo = isSnapshot ? extension.snapshots.repo : extension.releases.repo
+                withRepository {
+                    url(extension.baseUrl.endsWith('/') ?: extension.baseUrl + '/') + repo
+                    credentials {
+                        username = extension.credentials.username
+                        password = extension.credentials.password
                     }
                 }
             }
         }
     }
 
-    def void fixPomForOldGradleVersion(project, gradle, pom) {
+    /**
+     *
+     * @param gradle
+     * @param pom
+     * @return
+     */
+    def fixPomForOldGradleVersion(gradle, pom) {
         // Hack to ensure that the generated POM file contains the correct exclusion patterns.
-        // Has been fixed with Gradle 2.1
+        // This has been fixed with Gradle 2.1
         if (Double.valueOf(gradle.gradleVersion) < 2.1) {
             project.configurations[JavaPlugin.RUNTIME_CONFIGURATION_NAME].allDependencies.findAll {
                 it instanceof ModuleDependency && !it.excludeRules.isEmpty()
@@ -165,6 +163,72 @@ class RapidMinerJavaPublishingPlugin implements Plugin<Project> {
                     }
                 }
             }
+        }
+    }
+
+    /**
+     *
+     * @param withRepoClosure
+     */
+    def void withRepository(Closure repoClosure) {
+
+        def addRepositoryClosure = {
+
+            // Wait for the maven-publishing plugin to be applied.
+            project.plugins.withType(PublishingPlugin) { PublishingPlugin publishingPlugin ->
+                DefaultPublishingExtension publishingExtension = project.getExtensions().getByType(DefaultPublishingExtension)
+                publishingExtension.repositories.maven repoClosure
+            }
+        }
+
+        // It's possible that we're running in someone else's afterEvaluate, which means we need to run this immediately
+        if (project.getState().executed) {
+            addRepositoryClosure.call()
+        } else {
+            project.afterEvaluate addRepositoryClosure
+        }
+    }
+
+    /**
+     *
+     * @param withPubClosure
+     * @return
+     */
+    def void withMavenPublication(Closure withPubClosure) {
+
+        // New publish plugin way to specify artifacts in resulting publication
+        def addArtifactClosure = {
+
+            // Wait for the maven-publishing plugin to be applied.
+            project.plugins.withType(PublishingPlugin) { PublishingPlugin publishingPlugin ->
+                DefaultPublishingExtension publishingExtension = project.getExtensions().getByType(DefaultPublishingExtension)
+                publishingExtension.publications.withType(MavenPublication, withPubClosure)
+            }
+        }
+
+        // It's possible that we're running in someone else's afterEvaluate, which means we need to run this immediately
+        if (project.getState().executed) {
+            addArtifactClosure.call()
+        } else {
+            project.afterEvaluate addArtifactClosure
+        }
+    }
+
+    /**
+     *
+     * @param mavenPub
+     * @param config
+     * @return
+     */
+    def addArtifactsDynamically(MavenPublication mavenPub, ArtifactConfig config) {
+        if (config.publishTests) {
+            mavenPub.artifact project.tasks.testJar
+        }
+        if (config.publishJavaDoc) {
+            mavenPub.artifact project.tasks.javadocJar
+        }
+        if (config.publishSources) {
+            mavenPub.artifact project.tasks.sourceJar
         }
     }
 
