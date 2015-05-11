@@ -19,6 +19,7 @@ import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.artifacts.ExcludeRule
 import org.gradle.api.artifacts.ModuleDependency
+import org.gradle.api.artifacts.dsl.RepositoryHandler
 import org.gradle.api.plugins.JavaPlugin
 import org.gradle.api.publish.internal.DefaultPublishingExtension
 import org.gradle.api.publish.maven.MavenPublication
@@ -77,24 +78,6 @@ class RapidMinerJavaPublishingPlugin implements Plugin<Project> {
                 testArtifacts testJar
             }
 
-            def isSnapshot = project.version.endsWith('-SNAPSHOT')
-
-            // In case no credentials are defined...
-            if (!extension.credentials) {
-                project.logger.info "No credentials defined. Looking for 'nexusUser' and 'nexusPassword' project properties."
-
-                // .. check if nexusUser and nexusPassword project properties are set
-                if (!project.hasProperty('nexusUser')) {
-                    project.logger.info "Project property 'nexusUser' not found. Remote Maven repository will not be configured!"
-                } else {
-                    if (!project.hasProperty('nexusPassword')) {
-                        project.logger.info "Project property 'nexusPassword' not found. Remote Maven repository will not be configured!"
-                    } else {
-                        extension.credentials = new Credentials(username: project.nexusUser, password: project.nexusPassword)
-                    }
-                }
-            }
-
             // Define basic jar or war publication
             publishing {
                 publications {
@@ -108,33 +91,56 @@ class RapidMinerJavaPublishingPlugin implements Plugin<Project> {
                         fixPomForOldGradleVersion(gradle, pom)
                     }
                 }
+                repositories {
+                    maven {
+                        url "${-> extension.baseUrl?.endsWith('/') ?: (extension.baseUrl + '/') + (isSnapshot() ? extension.snapshots.repo : extension.releases.repo)}"
+                        credentials {
+                            username = "${-> extension.credentials?.username}"
+                            password = "${-> extension.credentials?.password}"
+                        }
+                    }
+                }
             }
 
             // Dynamically add artifacts to the Maven publication depending on the plugin extension configuration
             withMavenPublication { MavenPublication mavenPub ->
-                if (isSnapshot) {
+                if (isSnapshot()) {
                     addArtifactsDynamically mavenPub, extension.snapshots
                 } else {
                     addArtifactsDynamically mavenPub, extension.releases
                 }
             }
 
-            // Dynamically add Maven repository in case it is configured
-            if (!extension.baseUrl) {
-                project.logger.info 'No repository baseUrl defined. Skipping definition of remote Maven repository.'
-            } else if (!extension.credentials) {
-                project.logger.info 'No repository credentials defined. Skipping definition of remote Maven repository.'
-            } else {
-                def repo = isSnapshot ? extension.snapshots.repo : extension.releases.repo
-                withRepository {
-                    url(extension.baseUrl.endsWith('/') ?: extension.baseUrl + '/') + repo
-                    credentials {
-                        username = extension.credentials.username
-                        password = extension.credentials.password
+            afterEvaluate {
+
+                boolean removeRemoteRepoPublishTask = true
+                // In case no credentials are defined...
+                if (!extension.credentials) {
+                    project.logger.info "No credentials defined. Looking for 'nexusUser' and 'nexusPassword' project properties."
+
+                    // .. check if nexusUser and nexusPassword project properties are set
+                    if (!project.hasProperty('nexusUser')) {
+                        project.logger.info "Project property 'nexusUser' not found."
+                    } else {
+                        if (!project.hasProperty('nexusPassword')) {
+                            project.logger.info "Project property 'nexusPassword' not found."
+                        } else {
+                            extension.credentials = new Credentials(username: project.nexusUser, password: project.nexusPassword)
+                            removeRemoteRepoPublishTask = false
+                        }
+                    }
+
+                    if (removeRemoteRepoPublishTask) {
+                        project.logger.info 'Removing remote publishing task as it will not work properly without credentials.'
+                        project.tasks.remove(project.tasks.findByName("publish${plugins.hasPlugin('war') ? 'War' : 'Jar'}PublicationToMavenRepository"))
                     }
                 }
             }
         }
+    }
+
+    def isSnapshot() {
+        return project.version?.endsWith('-SNAPSHOT')
     }
 
     /**
@@ -176,8 +182,7 @@ class RapidMinerJavaPublishingPlugin implements Plugin<Project> {
 
             // Wait for the maven-publishing plugin to be applied.
             project.plugins.withType(PublishingPlugin) { PublishingPlugin publishingPlugin ->
-                DefaultPublishingExtension publishingExtension = project.getExtensions().getByType(DefaultPublishingExtension)
-                publishingExtension.repositories.maven repoClosure
+                repoClosure project.getExtensions().getByType(DefaultPublishingExtension).repositories
             }
         }
 
