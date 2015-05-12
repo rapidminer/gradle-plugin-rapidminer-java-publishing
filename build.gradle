@@ -5,3 +5,7 @@ plugins {
 gradlePlugin {
 	id 'java-publishing'
 }
+
+codeQuality {
+	codenarc = false
+}
