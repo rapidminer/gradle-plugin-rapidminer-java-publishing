@@ -131,8 +131,11 @@ class RapidMinerJavaPublishingPlugin implements Plugin<Project> {
                     }
 
                     if (removeRemoteRepoPublishTask) {
-                        project.logger.info 'Removing remote publishing task as it will not work properly without credentials.'
-                        project.tasks.remove(project.tasks.findByName("publish${plugins.hasPlugin('war') ? 'War' : 'Jar'}PublicationToMavenRepository"))
+                        def publishRemoteTask = project.tasks.findByName("publish${plugins.hasPlugin('war') ? 'War' : 'Jar'}PublicationToMavenRepository")
+                        if (publishRemoteTask) {
+                            project.logger.info 'Removing remote publishing task as it will not work properly without credentials.'
+                            project.tasks.remove(publishRemoteTask)
+                        }
                     }
                 }
             }

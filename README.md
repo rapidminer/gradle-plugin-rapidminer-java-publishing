@@ -3,7 +3,7 @@
 * Defines a jar/war publication that consists of different publications for snapshots/releases which can be configured
   via the 'publication' extension.
 
-## How to use (requires Gradle 2.1+)
+## How to use (requires Gradle 2.4+)
 	plugins {
 		id 'com.rapidminer.java-publishing' version <plugin version>
 	}
