@@ -24,7 +24,7 @@ import nebula.test.functional.ExecutionResult
  * @author Nils Woehler
  *
  */
-abstract class JavaPublishingIntegrationSpec extends IntegrationSpec {
+abstract class AbstractJavaPublishingIntegrationSpec extends IntegrationSpec {
 
     protected void checkMavenRepo(String version, ArtifactConfig artifactConfig) {
         File repoDir = new File(projectDir, "testRepo/${artifactConfig.repo}/com/rapidminer/${moduleName}/${version}/")
@@ -56,7 +56,7 @@ abstract class JavaPublishingIntegrationSpec extends IntegrationSpec {
         copyResources 'SimpleTestCaseClass.java', 'src/test/java/com/rapidminer/SimpleTestCaseClass.java'
         buildFile << """
             apply plugin: 'java'
-            ${applyPlugin(RapidMinerJavaPublishingPlugin)}
+            ${getApplyPluginString()}
 
             version '$version'
             group = 'com.rapidminer'
@@ -71,4 +71,9 @@ abstract class JavaPublishingIntegrationSpec extends IntegrationSpec {
         """.stripIndent()
 
     }
+
+    /**
+     * @return the plugin application string
+     */
+    def abstract String getApplyPluginString()
 }

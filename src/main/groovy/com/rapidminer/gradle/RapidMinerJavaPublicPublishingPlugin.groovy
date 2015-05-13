@@ -14,31 +14,19 @@
  * limitations under the License.
  */
 package com.rapidminer.gradle
-
-import org.gradle.api.Plugin
-import org.gradle.api.Project
-import org.gradle.api.artifacts.ExcludeRule
-import org.gradle.api.artifacts.ModuleDependency
-import org.gradle.api.artifacts.dsl.RepositoryHandler
-import org.gradle.api.plugins.JavaPlugin
-import org.gradle.api.publish.internal.DefaultPublishingExtension
-import org.gradle.api.publish.maven.MavenPublication
-import org.gradle.api.publish.plugins.PublishingPlugin
-import org.gradle.api.tasks.bundling.Jar
-
 /**
- * The java-publishing plugin that uses the 'maven-publish' plugin to preconfigure RapidMiner specific publications for
- * internal projects.
+ * The java-publishing plugin that uses the 'maven-publish' plugin to preconfigure RapidMiner publications
+ * for public but closed-source projects.
  *
  * @author Nils Woehler
  *
  */
-class RapidMinerJavaPublishingPlugin extends AbstractRapidMinerJavaPublishingPlugin {
+class RapidMinerJavaPublicPublishingPlugin extends AbstractRapidMinerJavaPublishingPlugin {
 
 
     @Override
     def void configurePublicationExtensionDefaults(PublishingExtension extension) {
-        extension.releases = new ArtifactConfig(publishTests: true, publishSources: true, publishJavaDoc: true, repo: 'releases')
+        extension.releases = new ArtifactConfig(publishTests: true, publishSources: false, publishJavaDoc: true, repo: 'releases-public')
         extension.snapshots = new ArtifactConfig(publishTests: true, publishSources: true, publishJavaDoc: false, repo: 'snapshots')
     }
 }

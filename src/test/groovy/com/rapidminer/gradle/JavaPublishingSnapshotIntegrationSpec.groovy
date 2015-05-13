@@ -18,12 +18,12 @@ package com.rapidminer.gradle
 import nebula.test.functional.ExecutionResult
 
 /**
- * Test for release publishing.
+ * Test for internal snapshot publishing.
  *
  * @author Nils Woehler
  *
  */
-class JavaPublishingSnapshotIntegrationSpec extends JavaPublishingIntegrationSpec {
+class JavaPublishingSnapshotIntegrationSpec extends AbstractJavaPublishingIntegrationSpec {
 
     static final VERSION = '0.1.1-SNAPSHOT'
 
@@ -113,6 +113,11 @@ class JavaPublishingSnapshotIntegrationSpec extends JavaPublishingIntegrationSpe
         then:
         result.standardOutput.contains('No credentials defined. Looking for \'nexusUser\' and \'nexusPassword\' project properties.')
         checkMavenRepo(VERSION, new ArtifactConfig(publishTests: true, publishSources: true, publishJavaDoc: false, repo: 'public-snapshots'))
+    }
+
+    @Override
+    String getApplyPluginString() {
+        return applyPlugin(RapidMinerJavaPublishingPlugin)
     }
 
 }
