@@ -74,7 +74,7 @@ class JavaPublishingReleaseIntegrationSpec extends AbstractJavaPublishingIntegra
 
         then:
         result.standardOutput.contains('No credentials defined. Looking for \'nexusUser\' and \'nexusPassword\' project properties.')
-        checkMavenRepo(VERSION, new ArtifactConfig(publishTests: true, publishSources: false, publishJavaDoc: false, repo: 'releases'))
+        checkMavenRepo(VERSION, new ArtifactConfig(publishTests: true, publishSources: true, publishJavaDoc: false, repo: 'releases'))
     }
 
     def 'Test release publishing without tests'() {
@@ -93,7 +93,7 @@ class JavaPublishingReleaseIntegrationSpec extends AbstractJavaPublishingIntegra
 
         then:
         result.standardOutput.contains('No credentials defined. Looking for \'nexusUser\' and \'nexusPassword\' project properties.')
-        checkMavenRepo(VERSION, new ArtifactConfig(publishTests: false, publishSources: false, publishJavaDoc: true, repo: 'releases'))
+        checkMavenRepo(VERSION, new ArtifactConfig(publishTests: false, publishSources: true, publishJavaDoc: true, repo: 'releases'))
     }
 
     def 'Test release publishing with different repo'() {
@@ -112,7 +112,7 @@ class JavaPublishingReleaseIntegrationSpec extends AbstractJavaPublishingIntegra
 
         then:
         result.standardOutput.contains('No credentials defined. Looking for \'nexusUser\' and \'nexusPassword\' project properties.')
-        checkMavenRepo(VERSION, new ArtifactConfig(publishTests: true, publishSources: false, publishJavaDoc: true, repo: 'public-releases'))
+        checkMavenRepo(VERSION, new ArtifactConfig(publishTests: true, publishSources: true, publishJavaDoc: true, repo: 'public-releases'))
     }
 
     @Override

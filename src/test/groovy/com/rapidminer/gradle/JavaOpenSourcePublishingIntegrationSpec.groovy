@@ -51,6 +51,6 @@ class JavaOpenSourcePublishingIntegrationSpec extends AbstractJavaPublishingInte
 
     @Override
     String getApplyPluginString() {
-        return applyPlugin(RapidMinerJavaPublicPublishingPlugin)
+        return applyPlugin(RapidMinerJavaOpenSourcePublishingPlugin)
     }
 }
