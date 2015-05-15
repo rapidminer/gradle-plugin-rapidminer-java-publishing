@@ -24,7 +24,7 @@ package com.rapidminer.gradle
 class PublishingExtension {
 
     Credentials credentials
-    String baseUrl = 'https://maven.rapidminer.com/nexus/content/repositories/'
+    String baseUrl = 'https://maven.rapidminer.com/content/repositories/'
     ArtifactConfig releases = new ArtifactConfig(publishTests: true, publishSources: false, publishJavaDoc: true, repo: 'releases')
     ArtifactConfig snapshots = new ArtifactConfig(publishTests: true, publishSources: true, publishJavaDoc: false, repo: 'snapshots')
 
