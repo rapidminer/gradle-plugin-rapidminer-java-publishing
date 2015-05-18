@@ -139,6 +139,22 @@ abstract class AbstractRapidMinerJavaPublishingPlugin implements Plugin<Project>
                         }
                     }
                 }
+
+                if (plugins.hasPlugin('java') && extension.vendor) {
+                    // configure jar manifests with Vendor and Version
+                    jar {
+                        manifest {
+                            attributes(
+                                    'Manifest-Version': '1.0',
+                                    'Created-By': extension.vendor,
+                                    'Specification-Version': project.version,
+                                    'Specification-Vendor': extension.vendor,
+                                    'Implementation-Version': project.version,
+                                    'Implementation-Vendor': extension.vendor,
+                            )
+                        }
+                    }
+                }
             }
         }
     }
