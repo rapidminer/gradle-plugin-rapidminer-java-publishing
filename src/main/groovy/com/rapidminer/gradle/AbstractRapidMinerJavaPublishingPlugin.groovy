@@ -94,7 +94,7 @@ abstract class AbstractRapidMinerJavaPublishingPlugin implements Plugin<Project>
                 }
                 repositories {
                     maven {
-                        url "${-> extension.baseUrl?.endsWith('/') ?: (extension.baseUrl + '/') + (isSnapshot() ? extension.snapshots.repo : extension.releases.repo)}"
+                        url "${-> (extension.baseUrl?.endsWith('/') ? extension.baseUrl : (extension.baseUrl + '/')) + (isSnapshot() ? extension.snapshots.repo : extension.releases.repo)}"
                         credentials {
                             username = "${-> extension.credentials?.username}"
                             password = "${-> extension.credentials?.password}"
@@ -126,6 +126,7 @@ abstract class AbstractRapidMinerJavaPublishingPlugin implements Plugin<Project>
                         if (!project.hasProperty('nexusPassword')) {
                             project.logger.info "Project property 'nexusPassword' not found."
                         } else {
+                            project.logger.info "Both 'nexusUser' and 'nexusPassword' found. Using as Maven repository credentials."
                             extension.credentials = new Credentials(username: project.nexusUser, password: project.nexusPassword)
                             removeRemoteRepoPublishTask = false
                         }
