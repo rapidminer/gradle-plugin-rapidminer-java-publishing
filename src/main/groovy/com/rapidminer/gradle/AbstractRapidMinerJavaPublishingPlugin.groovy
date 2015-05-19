@@ -95,7 +95,7 @@ abstract class AbstractRapidMinerJavaPublishingPlugin implements Plugin<Project>
                 }
                 repositories {
                     maven {
-                        name "Nexus"
+                        name 'Maven'
                     }
                 }
             }
