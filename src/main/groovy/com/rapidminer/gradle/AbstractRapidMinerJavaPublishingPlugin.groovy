@@ -19,6 +19,7 @@ import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.artifacts.ExcludeRule
 import org.gradle.api.artifacts.ModuleDependency
+import org.gradle.api.artifacts.repositories.MavenArtifactRepository
 import org.gradle.api.plugins.JavaPlugin
 import org.gradle.api.publish.internal.DefaultPublishingExtension
 import org.gradle.api.publish.maven.MavenPublication
@@ -94,11 +95,7 @@ abstract class AbstractRapidMinerJavaPublishingPlugin implements Plugin<Project>
                 }
                 repositories {
                     maven {
-                        url "${-> (extension.baseUrl?.endsWith('/') ? extension.baseUrl : (extension.baseUrl + '/')) + (isSnapshot() ? extension.snapshots.repo : extension.releases.repo)}"
-                        credentials {
-                            username = "${-> extension.credentials?.username}"
-                            password = "${-> extension.credentials?.password}"
-                        }
+                        name "Nexus"
                     }
                 }
             }
@@ -114,31 +111,55 @@ abstract class AbstractRapidMinerJavaPublishingPlugin implements Plugin<Project>
 
             afterEvaluate {
 
-                boolean removeRemoteRepoPublishTask = true
-                // In case no credentials are defined...
-                if (!extension.credentials) {
-                    project.logger.info "No credentials defined. Looking for 'nexusUser' and 'nexusPassword' project properties."
+                // Configure remote Maven repository
+                withRepository { MavenArtifactRepository repository ->
 
-                    // .. check if nexusUser and nexusPassword project properties are set
-                    if (!project.hasProperty('nexusUser')) {
-                        project.logger.info "Project property 'nexusUser' not found."
-                    } else {
-                        if (!project.hasProperty('nexusPassword')) {
-                            project.logger.info "Project property 'nexusPassword' not found."
+                    project.logger.info 'Configuring Nexus maven repository URL and credentials'
+
+                    // Configure repository URL
+                    def baseUrl = extension.baseUrl?.endsWith('/') ? extension.baseUrl : (extension.baseUrl + '/')
+                    def repo = isSnapshot() ? extension.snapshots.repo : extension.releases.repo
+                    repository.url = "${baseUrl}${repo}"
+                    project.logger.info "Repository URL is: ${repository.url}"
+
+                    // Configure repository Credentials
+                    boolean removeRemoteRepoPublishTask = false
+
+                    // In case no credentials are defined...
+                    if (!extension.credentials) {
+                        project.logger.info "No credentials defined for publication extension. Looking for 'nexusUser' and 'nexusPassword' project properties."
+
+                        // .. check if nexusUser and nexusPassword project properties are set
+                        if (!project.hasProperty('nexusUser')) {
+                            project.logger.info "Project property 'nexusUser' not found."
+                            removeRemoteRepoPublishTask = true
                         } else {
-                            project.logger.info "Both 'nexusUser' and 'nexusPassword' found. Using as Maven repository credentials."
-                            extension.credentials = new Credentials(username: project.nexusUser, password: project.nexusPassword)
-                            removeRemoteRepoPublishTask = false
+                            if (!project.hasProperty('nexusPassword')) {
+                                project.logger.info "Project property 'nexusPassword' not found."
+                                removeRemoteRepoPublishTask = true
+                            } else {
+                                project.logger.info "Both 'nexusUser' and 'nexusPassword' found. Using as Maven repository credentials."
+                                extension.credentials = new Credentials(username: project.nexusUser, password: project.nexusPassword)
+                            }
                         }
+                    } else {
+
                     }
 
                     if (removeRemoteRepoPublishTask) {
-                        def publishRemoteTask = project.tasks.findByName("publish${plugins.hasPlugin('war') ? 'War' : 'Jar'}PublicationToMavenRepository")
+                        def publishRemoteTask = project.tasks.findByName("publish${plugins.hasPlugin('war') ? 'War' : 'Jar'}PublicationToNexusRepository")
                         if (publishRemoteTask) {
                             project.logger.info 'Removing remote publishing task as it will not work properly without credentials.'
                             project.tasks.remove(publishRemoteTask)
                         }
+                    } else {
+                        project.logger.info "Maven repository username is: ${extension.credentials.username}, password is: ${extension.credentials.password}"
+                        repository.credentials {
+                            username = extension.credentials.username
+                            password = extension.credentials.password
+                        }
                     }
+
                 }
 
                 if (plugins.hasPlugin('java') && extension.vendor) {
@@ -199,19 +220,20 @@ abstract class AbstractRapidMinerJavaPublishingPlugin implements Plugin<Project>
      */
     def void withRepository(Closure repoClosure) {
 
-        def addRepositoryClosure = {
+        def configureRepositoryClosure = {
 
             // Wait for the maven-publishing plugin to be applied.
             project.plugins.withType(PublishingPlugin) { PublishingPlugin publishingPlugin ->
-                repoClosure project.getExtensions().getByType(DefaultPublishingExtension).repositories
+                DefaultPublishingExtension publishingExtension = project.getExtensions().getByType(DefaultPublishingExtension)
+                publishingExtension.repositories.withType(MavenArtifactRepository, repoClosure)
             }
         }
 
         // It's possible that we're running in someone else's afterEvaluate, which means we need to run this immediately
         if (project.getState().executed) {
-            addRepositoryClosure.call()
+            configureRepositoryClosure.call()
         } else {
-            project.afterEvaluate addRepositoryClosure
+            project.afterEvaluate configureRepositoryClosure
         }
     }
 
