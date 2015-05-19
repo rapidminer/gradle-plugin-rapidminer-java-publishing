@@ -33,7 +33,6 @@ class JavaPublicPublishingIntegrationSpec extends AbstractJavaPublishingIntegrat
         ExecutionResult result = runTasksSuccessfully('publishJarPublicationToMavenRepository')
 
         then:
-        result.standardOutput.contains('No credentials defined. Looking for \'nexusUser\' and \'nexusPassword\' project properties.')
         checkMavenRepo('0.1.1', new ArtifactConfig(publishTests: true, publishSources: false, publishJavaDoc: true, repo: 'releases-public'))
     }
 
@@ -45,7 +44,6 @@ class JavaPublicPublishingIntegrationSpec extends AbstractJavaPublishingIntegrat
         ExecutionResult result = runTasksSuccessfully('publishJarPublicationToMavenRepository')
 
         then:
-        result.standardOutput.contains('No credentials defined. Looking for \'nexusUser\' and \'nexusPassword\' project properties.')
         checkMavenRepo('0.1.1-SNAPSHOT', new ArtifactConfig(publishTests: true, publishSources: true, publishJavaDoc: false, repo: 'snapshots'))
     }
 

@@ -35,7 +35,6 @@ class JavaPublishingSnapshotIntegrationSpec extends AbstractJavaPublishingIntegr
         ExecutionResult result = runTasksSuccessfully('publishJarPublicationToMavenRepository')
 
         then:
-        result.standardOutput.contains('No credentials defined. Looking for \'nexusUser\' and \'nexusPassword\' project properties.')
         checkMavenRepo(VERSION, new ArtifactConfig(publishTests: true, publishSources: true, publishJavaDoc: false, repo: 'snapshots'))
     }
 
@@ -54,7 +53,6 @@ class JavaPublishingSnapshotIntegrationSpec extends AbstractJavaPublishingIntegr
         ExecutionResult result = runTasksSuccessfully('publishJarPublicationToMavenRepository')
 
         then:
-        result.standardOutput.contains('No credentials defined. Looking for \'nexusUser\' and \'nexusPassword\' project properties.')
         checkMavenRepo(VERSION, new ArtifactConfig(publishTests: true, publishSources: true, publishJavaDoc: true, repo: 'snapshots'))
     }
 
@@ -73,7 +71,6 @@ class JavaPublishingSnapshotIntegrationSpec extends AbstractJavaPublishingIntegr
         ExecutionResult result = runTasksSuccessfully('publishJarPublicationToMavenRepository')
 
         then:
-        result.standardOutput.contains('No credentials defined. Looking for \'nexusUser\' and \'nexusPassword\' project properties.')
         checkMavenRepo(VERSION, new ArtifactConfig(publishTests: true, publishSources: false, publishJavaDoc: false, repo: 'snapshots'))
     }
 
@@ -92,7 +89,6 @@ class JavaPublishingSnapshotIntegrationSpec extends AbstractJavaPublishingIntegr
         ExecutionResult result = runTasksSuccessfully('publishJarPublicationToMavenRepository')
 
         then:
-        result.standardOutput.contains('No credentials defined. Looking for \'nexusUser\' and \'nexusPassword\' project properties.')
         checkMavenRepo(VERSION, new ArtifactConfig(publishTests: false, publishSources: true, publishJavaDoc: false, repo: 'snapshots'))
     }
 
@@ -111,7 +107,7 @@ class JavaPublishingSnapshotIntegrationSpec extends AbstractJavaPublishingIntegr
         ExecutionResult result = runTasksSuccessfully('publishJarPublicationToMavenRepository')
 
         then:
-        result.standardOutput.contains('No credentials defined. Looking for \'nexusUser\' and \'nexusPassword\' project properties.')
+        result.standardOutput.contains('No credentials defined for publication extension. Looking for \'nexusUser\' and \'nexusPassword\' project properties.')
         checkMavenRepo(VERSION, new ArtifactConfig(publishTests: true, publishSources: true, publishJavaDoc: false, repo: 'public-snapshots'))
     }
 
