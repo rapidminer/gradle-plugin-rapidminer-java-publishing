@@ -44,7 +44,7 @@ class JavaPublishingReleaseIntegrationSpec extends AbstractJavaPublishingIntegra
         buildFile  << """
         publication {
             releases {
-                publishSources = true
+                publishSources = false
             }
         }
         """.stripIndent()
@@ -53,7 +53,7 @@ class JavaPublishingReleaseIntegrationSpec extends AbstractJavaPublishingIntegra
         ExecutionResult result = runTasksSuccessfully('publishJarPublicationToMavenRepository')
 
         then:
-        checkMavenRepo(VERSION, new ArtifactConfig(publishTests: true, publishSources: true, publishJavaDoc: true, repo: 'releases'))
+        checkMavenRepo(VERSION, new ArtifactConfig(publishTests: true, publishSources: false, publishJavaDoc: true, repo: 'releases'))
     }
 
     def 'Test release publishing without javadoc'() {

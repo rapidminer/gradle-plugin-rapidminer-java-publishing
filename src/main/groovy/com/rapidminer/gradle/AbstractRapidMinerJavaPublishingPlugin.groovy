@@ -143,7 +143,7 @@ abstract class AbstractRapidMinerJavaPublishingPlugin implements Plugin<Project>
                             }
                         }
                     } else {
-
+                        project.logger.info 'Using Maven repository credentials defined in publication extension.'
                     }
 
                     if (removeRemoteRepoPublishTask) {
@@ -153,7 +153,6 @@ abstract class AbstractRapidMinerJavaPublishingPlugin implements Plugin<Project>
                             project.tasks.remove(publishRemoteTask)
                         }
                     } else {
-                        project.logger.info "Maven repository username is: ${extension.credentials.username}, password is: ${extension.credentials.password}"
                         repository.credentials {
                             username = extension.credentials.username
                             password = extension.credentials.password
