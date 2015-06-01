@@ -1,7 +1,11 @@
 plugins {
-	id 'com.rapidminer.gradle-plugin' version '0.2.9'
+	id 'com.rapidminer.gradle-plugin' version '0.3.3'
 }
 
 gradlePlugin {
 	id 'java-publishing'
+}
+
+codeQuality {
+	codenarc = false
 }
