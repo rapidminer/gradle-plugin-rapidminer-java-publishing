@@ -1,10 +1,11 @@
 ## Change Log
 
 #### 0.2.0
-* Streamlined publishing configuration by adding a plugin extension called 'publication' that ships with highly opinionated default values 
- (see README.md for more information on how to configure the extension)
+* Streamlined publishing configuration by adding a plugin extension called 'publication' that ships with highly opinionated 
+  default values defined by three different plugins ('com.rapidminer.java-publishing', 'com.rapidminer.java-publishing.public', 
+  and 'com.rapidminer.java-publishing.open-source')
 * The 'jar' publication is now called 'war' publication in case the 'war' plugin is applied
-* Removed javaDoc publication
+* Removed javaDoc publication as it is now included in the jar/war publication
 
 #### 0.1.3
 * Removes Test and Source publishing tasks as they break dependency fetching. Instead they are also executed when publishing the Java Jar.

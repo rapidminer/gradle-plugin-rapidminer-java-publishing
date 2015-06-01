@@ -1,11 +1,13 @@
 ## Introduction
 * Add tasks for creating source, javadoc, and test Jars
-* Defines a jar/war publication that consists of different publications for snapshots/releases which can be configured
+* Defines a jar/war publication that defines different publications for snapshots/releases which can be configured
   via the 'publication' extension.
 
 ## How to use (requires Gradle 2.4+)
 	plugins {
 		id 'com.rapidminer.java-publishing' version <plugin version>
+		// OR: id 'com.rapidminer.java-publishing.public' version <plugin version>
+		// OR: id 'com.rapidminer.java-publishing.open-source' version <plugin version>
 	}
 	
 	publication {
