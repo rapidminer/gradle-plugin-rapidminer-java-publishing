@@ -26,28 +26,37 @@ import nebula.test.functional.ExecutionResult
  */
 abstract class AbstractJavaPublishingIntegrationSpec extends IntegrationSpec {
 
-    protected void checkMavenRepo(String version, ArtifactConfig artifactConfig) {
-        File repoDir = new File(projectDir, "testRepo/${artifactConfig.repo}/com/rapidminer/${moduleName}/${version}/")
+    protected void checkMavenRepo(String version, ArtifactConfig artifactConfig, String... otherArtifacts) {
+        File repoDir = getRepoDir(version, artifactConfig)
         assert repoDir.exists()
 
-        def baseName
-        if(version.endsWith('-SNAPSHOT')){
-
-            // read timestamp from Maven metadata
-            def mavenMDFile = new File(repoDir, 'maven-metadata.xml')
-            assert mavenMDFile.exists()
-            def timestamp = new XmlSlurper().parse(mavenMDFile).versioning.snapshot.timestamp
-            def mavenVersion = version.replace('-SNAPSHOT', '')
-            baseName = "${moduleName}-${mavenVersion}-${timestamp}-1"
-        } else {
-            baseName =  "${moduleName}-${version}"
-        }
+        def baseName = getBaseName(version, repoDir)
 
         assert new File(repoDir, "${baseName}.jar").exists()
         assert new File(repoDir, "${baseName}.pom").exists()
         assert new File(repoDir, "${baseName}-sources.jar").exists() == artifactConfig.publishSources
         assert new File(repoDir, "${baseName}-javadoc.jar").exists() == artifactConfig.publishJavaDoc
         assert new File(repoDir, "${baseName}-test.jar").exists() == artifactConfig.publishTests
+        otherArtifacts.each {
+            assert new File(repoDir, "${baseName}-${it}.jar").exists()
+        }
+    }
+
+    protected File getRepoDir(String version, ArtifactConfig artifactConfig){
+        return new File(projectDir, "testRepo/${artifactConfig.repo}/com/rapidminer/${moduleName}/${version}/")
+    }
+
+    protected String getBaseName(String version, File repoDir) {
+        if (version.endsWith('-SNAPSHOT')) {
+            // read timestamp from Maven metadata
+            def mavenMDFile = new File(repoDir, 'maven-metadata.xml')
+            assert mavenMDFile.exists()
+            def timestamp = new XmlSlurper().parse(mavenMDFile).versioning.snapshot.timestamp
+            def mavenVersion = version.replace('-SNAPSHOT', '')
+            return"${moduleName}-${mavenVersion}-${timestamp}-1"
+        } else {
+            return "${moduleName}-${version}"
+        }
     }
 
     protected void setupProject(String version) {

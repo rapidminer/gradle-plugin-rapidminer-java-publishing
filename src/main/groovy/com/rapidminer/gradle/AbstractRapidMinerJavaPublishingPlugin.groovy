@@ -103,9 +103,9 @@ abstract class AbstractRapidMinerJavaPublishingPlugin implements Plugin<Project>
             // Dynamically add artifacts to the Maven publication depending on the plugin extension configuration
             withMavenPublication { MavenPublication mavenPub ->
                 if (isSnapshot()) {
-                    addArtifactsDynamically mavenPub, extension.snapshots
+                    addArtifactsDynamically mavenPub, extension.snapshots, extension.artifactId, extension.groupId
                 } else {
-                    addArtifactsDynamically mavenPub, extension.releases
+                    addArtifactsDynamically mavenPub, extension.releases, extension.artifactId, extension.groupId
                 }
             }
 
@@ -265,9 +265,17 @@ abstract class AbstractRapidMinerJavaPublishingPlugin implements Plugin<Project>
      *
      * @param mavenPub
      * @param config
+     * @param artifactId
+     * @param groupId
      * @return
      */
-    def addArtifactsDynamically(MavenPublication mavenPub, ArtifactConfig config) {
+    def addArtifactsDynamically(MavenPublication mavenPub, ArtifactConfig config, String artifactId, String groupId) {
+        if(artifactId){
+            mavenPub.artifactId = artifactId
+        }
+        if(groupId){
+            mavenPub.groupId = groupId
+        }
         if (config.publishTests) {
             mavenPub.artifact project.tasks.testJar
         }
@@ -276,6 +284,9 @@ abstract class AbstractRapidMinerJavaPublishingPlugin implements Plugin<Project>
         }
         if (config.publishSources) {
             mavenPub.artifact project.tasks.sourceJar
+        }
+        config.artifacts.each {
+            mavenPub.artifact it
         }
     }
 

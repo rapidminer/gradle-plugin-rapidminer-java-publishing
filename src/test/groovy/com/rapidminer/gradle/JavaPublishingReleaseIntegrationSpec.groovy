@@ -110,6 +110,30 @@ class JavaPublishingReleaseIntegrationSpec extends AbstractJavaPublishingIntegra
         checkMavenRepo(VERSION, new ArtifactConfig(publishTests: true, publishSources: true, publishJavaDoc: true, repo: 'public-releases'))
     }
 
+    def 'Test snapshot publishing with added artifact'() {
+        setup:
+        setupProject(VERSION)
+        buildFile  << """
+
+        task utilJar(type: Jar) {
+            from(sourceSets.main.output)
+        }
+
+        publication {
+            releases {
+                artifact utilJar { classifier 'utils' }
+            }
+        }
+        """.stripIndent()
+
+        when:
+        ExecutionResult result = runTasksSuccessfully('publishJarPublicationToMavenRepository')
+
+        then:
+        result.standardOutput.contains('No credentials defined for publication extension. Looking for \'nexusUser\' and \'nexusPassword\' project properties.')
+        checkMavenRepo(VERSION, new ArtifactConfig(publishTests: true, publishSources: true, publishJavaDoc: true, repo: 'releases'), 'utils')
+    }
+
     @Override
     String getApplyPluginString() {
         return applyPlugin(RapidMinerJavaPublishingPlugin)
