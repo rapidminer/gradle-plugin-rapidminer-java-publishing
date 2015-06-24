@@ -14,6 +14,12 @@
 	    // The baseUrl of the repository to publish to. It should contain everything but the repository to publish to.
 		baseUrl = 'https://maven.rapidminer.com/nexus/content/repositories/'
 		
+		// change artifactId of publication dynamically
+		artifactId { 'differentArtifactId' }
+		
+		// change groupId of publication dynamically
+		groupId { 'differntGroupId' }
+		
 		/*
 		 * Allows to define credentials for the configured repository.
 		 * 
