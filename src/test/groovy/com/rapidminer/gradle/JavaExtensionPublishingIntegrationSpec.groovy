@@ -49,6 +49,6 @@ class JavaExtensionPublishingIntegrationSpec extends AbstractJavaPublishingInteg
 
     @Override
     String getApplyPluginString() {
-        return applyPlugin(RapidMinerJavaOpenSourcePublishingPlugin)
+        return applyPlugin(RapidMinerJavaExtensionPublishingPlugin)
     }
 }
