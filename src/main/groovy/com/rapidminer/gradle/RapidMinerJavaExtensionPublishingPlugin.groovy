@@ -16,34 +16,17 @@
 package com.rapidminer.gradle
 
 /**
- * POGO that allows to define the repository and artifacts of a project release.
+ * The java-publishing plugin that uses the 'maven-publish' plugin to preconfigure RapidMiner extension publications.
  *
  * @author Nils Woehler
  *
  */
-class ArtifactConfig {
+class RapidMinerJavaExtensionPublishingPlugin extends AbstractRapidMinerJavaPublishingPlugin {
 
-    String repo
-    boolean publishTests
-    boolean publishSources
-    boolean publishJavaDoc
-    def artifacts = []
 
-    /**
-     * Applies the provided closure (e.g. to configure class fields).
-     */
-    def apply(Closure closure) {
-        closure.delegate = this
-        closure()
-    }
-
-    /**
-     * Adds a further artifact that should be published.
-     *
-     * @param artifact
-     * @return
-     */
-    def artifact(artifact){
-        artifacts << artifact
+    @Override
+    def void configurePublicationExtensionDefaults(PublishingExtension extension) {
+        extension.releases = new ArtifactConfig(publishTests: false, publishSources: false, publishJavaDoc: false, repo: 'releases')
+        extension.snapshots = new ArtifactConfig(publishTests: false, publishSources: false, publishJavaDoc: false, repo: 'snapshots')
     }
 }

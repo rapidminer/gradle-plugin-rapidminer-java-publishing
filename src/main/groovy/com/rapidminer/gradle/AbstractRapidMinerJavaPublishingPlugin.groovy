@@ -100,21 +100,22 @@ abstract class AbstractRapidMinerJavaPublishingPlugin implements Plugin<Project>
                 }
             }
 
-            // Dynamically add artifacts to the Maven publication depending on the plugin extension configuration
-            withMavenPublication { MavenPublication mavenPub ->
-                if (isSnapshot()) {
-                    addArtifactsDynamically mavenPub, extension.snapshots
-                } else {
-                    addArtifactsDynamically mavenPub, extension.releases
-                }
-            }
-
             afterEvaluate {
+
+                // Dynamically add artifacts to the Maven publication depending on the plugin extension configuration
+                project.logger.info "Dynamically configuring Maven publications for 'java-publishing' plugin."
+                withMavenPublication { MavenPublication mavenPub ->
+                    if (isSnapshot()) {
+                        addArtifactsDynamically mavenPub, extension.snapshots, extension.artifactId, extension.groupId
+                    } else {
+                        addArtifactsDynamically mavenPub, extension.releases, extension.artifactId, extension.groupId
+                    }
+                }
 
                 // Configure remote Maven repository
                 withRepository { MavenArtifactRepository repository ->
 
-                    project.logger.info 'Configuring Nexus maven repository URL and credentials'
+                    project.logger.info 'Configuring Nexus Maven repository URL and credentials'
 
                     // Configure repository URL
                     def baseUrl = extension.baseUrl?.endsWith('/') ? extension.baseUrl : (extension.baseUrl + '/')
@@ -265,9 +266,19 @@ abstract class AbstractRapidMinerJavaPublishingPlugin implements Plugin<Project>
      *
      * @param mavenPub
      * @param config
+     * @param artifactId
+     * @param groupId
      * @return
      */
-    def addArtifactsDynamically(MavenPublication mavenPub, ArtifactConfig config) {
+    def addArtifactsDynamically(MavenPublication mavenPub, ArtifactConfig config, Closure artifactId, Closure groupId) {
+        if(artifactId){
+            mavenPub.artifactId = artifactId()
+            project.logger.info "Changing artifactId to '$mavenPub.artifactId'"
+        }
+        if(groupId){
+            mavenPub.groupId = groupId()
+            project.logger.info "Changing groupId to '$mavenPub.groupId'"
+        }
         if (config.publishTests) {
             mavenPub.artifact project.tasks.testJar
         }
@@ -276,6 +287,9 @@ abstract class AbstractRapidMinerJavaPublishingPlugin implements Plugin<Project>
         }
         if (config.publishSources) {
             mavenPub.artifact project.tasks.sourceJar
+        }
+        config.artifacts.each {
+            mavenPub.artifact it
         }
     }
 

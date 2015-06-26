@@ -28,6 +28,8 @@ class PublishingExtension {
     ArtifactConfig releases = new ArtifactConfig(publishTests: true, publishSources: false, publishJavaDoc: true, repo: 'releases')
     ArtifactConfig snapshots = new ArtifactConfig(publishTests: true, publishSources: true, publishJavaDoc: false, repo: 'snapshots')
     String vendor = 'RapidMiner GmbH'
+    Closure groupId
+    Closure artifactId
 
     /**
      * Delegates the provided Closure to the ArtifactConfig.
@@ -52,4 +54,13 @@ class PublishingExtension {
         }
         credentials.apply(closure)
     }
+
+    def groupId(Closure closure){
+        this.groupId = closure
+    }
+
+    def artifactId(Closure closure){
+        this.artifactId = closure
+    }
+
 }
