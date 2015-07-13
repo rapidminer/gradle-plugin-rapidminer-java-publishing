@@ -194,23 +194,27 @@ abstract class AbstractRapidMinerJavaPublishingPlugin implements Plugin<Project>
     def fixPomForOldGradleVersion(gradle, pom) {
         // Hack to ensure that the generated POM file contains the correct exclusion patterns.
         // This has been fixed with Gradle 2.1
-        if (Double.valueOf(gradle.gradleVersion) < 2.1) {
-            project.configurations[JavaPlugin.RUNTIME_CONFIGURATION_NAME].allDependencies.findAll {
-                it instanceof ModuleDependency && !it.excludeRules.isEmpty()
-            }.each { ModuleDependency dep ->
-                pom.withXml {
-                    def xmlDep = asNode().dependencies.dependency.find {
-                        it.groupId[0].text() == dep.group && it.artifactId[0].text() == dep.name
-                    }
-                    def xmlExclusions = xmlDep.exclusions[0]
-                    if (!xmlExclusions) xmlExclusions = xmlDep.appendNode('exclusions')
-                    dep.excludeRules.each { ExcludeRule rule ->
-                        def xmlExclusion = xmlExclusions.appendNode('exclusion')
-                        xmlExclusion.appendNode('groupId', rule.group)
-                        xmlExclusion.appendNode('artifactId', rule.module)
+        try {
+            if (Double.valueOf(gradle.gradleVersion) < 2.1) {
+                project.configurations[JavaPlugin.RUNTIME_CONFIGURATION_NAME].allDependencies.findAll {
+                    it instanceof ModuleDependency && !it.excludeRules.isEmpty()
+                }.each { ModuleDependency dep ->
+                    pom.withXml {
+                        def xmlDep = asNode().dependencies.dependency.find {
+                            it.groupId[0].text() == dep.group && it.artifactId[0].text() == dep.name
+                        }
+                        def xmlExclusions = xmlDep.exclusions[0]
+                        if (!xmlExclusions) xmlExclusions = xmlDep.appendNode('exclusions')
+                        dep.excludeRules.each { ExcludeRule rule ->
+                            def xmlExclusion = xmlExclusions.appendNode('exclusion')
+                            xmlExclusion.appendNode('groupId', rule.group)
+                            xmlExclusion.appendNode('artifactId', rule.module)
+                        }
                     }
                 }
             }
+        } catch (NumberFormatException e) {
+            // ignore parsing of Gradle version of release candidates
         }
     }
 
@@ -271,11 +275,11 @@ abstract class AbstractRapidMinerJavaPublishingPlugin implements Plugin<Project>
      * @return
      */
     def addArtifactsDynamically(MavenPublication mavenPub, ArtifactConfig config, Closure artifactId, Closure groupId) {
-        if(artifactId){
+        if (artifactId) {
             mavenPub.artifactId = artifactId()
             project.logger.info "Changing artifactId to '$mavenPub.artifactId'"
         }
-        if(groupId){
+        if (groupId) {
             mavenPub.groupId = groupId()
             project.logger.info "Changing groupId to '$mavenPub.groupId'"
         }
