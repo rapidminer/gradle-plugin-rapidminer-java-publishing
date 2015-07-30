@@ -28,6 +28,6 @@ class RapidMinerJavaExtensionPublishingPlugin extends AbstractRapidMinerJavaPubl
     def void configurePublicationExtensionDefaults(PublishingExtension extension) {
         extension.releases = new ArtifactConfig(publishTests: false, publishSources: false, publishJavaDoc: false, repo: 'releases')
         extension.snapshots = new ArtifactConfig(publishTests: false, publishSources: false, publishJavaDoc: false, repo: 'snapshots')
-        extension.licenseType = PublishingExtension.LicenseType.RM_EULA
+        extension.licenseType = PublishingExtension.LicenseTypes.RM_EULA
     }
 }

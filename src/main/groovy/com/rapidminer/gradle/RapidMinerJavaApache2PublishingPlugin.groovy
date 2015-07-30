@@ -27,6 +27,6 @@ class RapidMinerJavaApache2PublishingPlugin extends RapidMinerJavaOpenSourcePubl
     @Override
     def void configurePublicationExtensionDefaults(PublishingExtension extension) {
         configureOpenSourcePublicationArtifacts(extension)
-        extension.licenseType = PublishingExtension.LicenseType.APACHE_V2
+        extension.licenseType = PublishingExtension.LicenseTypes.APACHE_V2
     }
 }

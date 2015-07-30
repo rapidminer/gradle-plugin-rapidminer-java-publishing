@@ -27,6 +27,6 @@ class RapidMinerJavaLgpl3PublishingPlugin extends RapidMinerJavaOpenSourcePublis
     @Override
     def void configurePublicationExtensionDefaults(PublishingExtension extension) {
         configureOpenSourcePublicationArtifacts(extension)
-        extension.licenseType = PublishingExtension.LicenseType.LGPL_V3
+        extension.licenseType = PublishingExtension.LicenseTypes.LGPL_V3
     }
 }
