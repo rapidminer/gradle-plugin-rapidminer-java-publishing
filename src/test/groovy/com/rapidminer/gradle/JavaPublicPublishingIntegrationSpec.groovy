@@ -26,25 +26,31 @@ import nebula.test.functional.ExecutionResult
 class JavaPublicPublishingIntegrationSpec extends AbstractJavaPublishingIntegrationSpec {
 
     def 'Test default public release publishing'() {
+        def version = '0.1.1'
         setup:
-        setupProject('0.1.1')
+        setupProject(version)
 
         when:
-        ExecutionResult result = runTasksSuccessfully('publishJarPublicationToMavenRepository')
+        runTasksSuccessfully('publishJarPublicationToMavenRepository')
 
         then:
-        checkMavenRepo('0.1.1', new ArtifactConfig(publishTests: true, publishSources: false, publishJavaDoc: true, repo: 'releases-public'))
+        def config = new ArtifactConfig(publishTests: true, publishSources: false, publishJavaDoc: true, repo: 'releases-public')
+        checkMavenRepo(version, config)
+        checkPOMContent(version, config, PublishingExtension.LicenseType.RM_EULA)
     }
 
     def 'Test default public snapshot publishing'() {
+        def version = '0.1.1-SNAPSHOT'
         setup:
-        setupProject('0.1.1-SNAPSHOT')
+        setupProject(version)
 
         when:
-        ExecutionResult result = runTasksSuccessfully('publishJarPublicationToMavenRepository')
+        runTasksSuccessfully('publishJarPublicationToMavenRepository')
 
         then:
-        checkMavenRepo('0.1.1-SNAPSHOT', new ArtifactConfig(publishTests: true, publishSources: true, publishJavaDoc: false, repo: 'snapshots'))
+        def config = new ArtifactConfig(publishTests: true, publishSources: true, publishJavaDoc: false, repo: 'snapshots')
+        checkMavenRepo(version, config)
+        checkPOMContent(version, config, PublishingExtension.LicenseType.RM_EULA)
     }
 
     @Override

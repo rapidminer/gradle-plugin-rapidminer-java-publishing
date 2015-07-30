@@ -7,12 +7,21 @@
 	plugins {
 		id 'com.rapidminer.java-publishing' version <plugin version>
 		// OR: id 'com.rapidminer.java-publishing.public' version <plugin version>
-		// OR: id 'com.rapidminer.java-publishing.open-source' version <plugin version>
+		// OR: id 'com.rapidminer.java-publishing.agpl-v3' version <plugin version>
+		// OR: id 'com.rapidminer.java-publishing.apache-v2' version <plugin version>
+		// OR: id 'com.rapidminer.java-publishing.lgpl-v3' version <plugin version>
 	}
 	
 	publication {
 	    // The baseUrl of the repository to publish to. It should contain everything but the repository to publish to.
-		baseUrl = 'https://maven.rapidminer.com/nexus/content/repositories/'
+		baseUrl 'https://maven.rapidminer.com/nexus/content/repositories/'
+		
+		// Specify organization vendor and URL for published POM
+		vendor 'RapidMiner GmbH'
+		vendorUrl 'www.rapidminer.com'
+		
+		// specify the license type (supported input: AGPL_V3, APACHE_V2, LGPL_V3, RM_EULA)
+		license 'AGPL_V3'
 		
 		// change artifactId of publication dynamically
 		artifactId { 'differentArtifactId' }

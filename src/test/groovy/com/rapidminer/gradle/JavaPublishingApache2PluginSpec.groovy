@@ -15,19 +15,18 @@
  */
 package com.rapidminer.gradle
 
+import nebula.test.PluginProjectSpec
+
 /**
- * The java-publishing plugin that uses the 'maven-publish' plugin to preconfigure RapidMiner extension publications.
+ * Test whether the plugin can be applied properly (idempotently and in a multi-project).
  *
  * @author Nils Woehler
  *
  */
-class RapidMinerJavaExtensionPublishingPlugin extends AbstractRapidMinerJavaPublishingPlugin {
-
+class JavaPublishingApache2PluginSpec extends PluginProjectSpec {
 
     @Override
-    def void configurePublicationExtensionDefaults(PublishingExtension extension) {
-        extension.releases = new ArtifactConfig(publishTests: false, publishSources: false, publishJavaDoc: false, repo: 'releases')
-        extension.snapshots = new ArtifactConfig(publishTests: false, publishSources: false, publishJavaDoc: false, repo: 'snapshots')
-        extension.licenseType = PublishingExtension.LicenseType.RM_EULA
+    String getPluginName() {
+        return 'com.rapidminer.java-publishing.apache-v2'
     }
 }

@@ -14,18 +14,15 @@
  * limitations under the License.
  */
 package com.rapidminer.gradle
-
-import nebula.test.functional.ExecutionResult
-
 /**
  * Test for open-source release publishing.
  *
  * @author Nils Woehler
  *
  */
-class JavaExtensionPublishingIntegrationSpec extends AbstractJavaPublishingIntegrationSpec {
+class JavaApache2PublishingIntegrationSpec extends AbstractJavaPublishingIntegrationSpec {
 
-    def 'Test default open-source release publishing'() {
+    def 'Test default AGPL V3 release publishing'() {
         def version = '0.1.1'
         setup:
         setupProject(version)
@@ -33,13 +30,14 @@ class JavaExtensionPublishingIntegrationSpec extends AbstractJavaPublishingInteg
         when:
         runTasksSuccessfully('publishJarPublicationToMavenRepository')
 
+
         then:
-        def config = new ArtifactConfig(publishTests: false, publishSources: false, publishJavaDoc: false, repo: 'releases')
+        def config = new ArtifactConfig(publishTests: true, publishSources: true, publishJavaDoc: true, repo: 'releases-public')
         checkMavenRepo(version, config)
-        checkPOMContent(version, config, PublishingExtension.LicenseType.RM_EULA)
+        checkPOMContent(version, config, PublishingExtension.LicenseType.APACHE_V2)
     }
 
-    def 'Test default open-source snapshot publishing'() {
+    def 'Test default AGPL V3 snapshot publishing'() {
         def version = '0.1.1-SNAPSHOT'
         setup:
         setupProject(version)
@@ -48,13 +46,13 @@ class JavaExtensionPublishingIntegrationSpec extends AbstractJavaPublishingInteg
         runTasksSuccessfully('publishJarPublicationToMavenRepository')
 
         then:
-        def config = new ArtifactConfig(publishTests: false, publishSources: false, publishJavaDoc: false, repo: 'snapshots')
+        def config = new ArtifactConfig(publishTests: true, publishSources: true, publishJavaDoc: false, repo: 'snapshots')
         checkMavenRepo(version, config)
-        checkPOMContent(version, config, PublishingExtension.LicenseType.RM_EULA)
+        checkPOMContent(version, config, PublishingExtension.LicenseType.APACHE_V2)
     }
 
     @Override
     String getApplyPluginString() {
-        return applyPlugin(RapidMinerJavaExtensionPublishingPlugin)
+        return applyPlugin(RapidMinerJavaApache2PublishingPlugin)
     }
 }

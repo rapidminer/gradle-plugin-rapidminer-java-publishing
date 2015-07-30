@@ -2,8 +2,13 @@
 
 #### 0.2.0
 * Streamlined publishing configuration by adding a plugin extension called 'publication' that ships with highly opinionated 
-  default values defined by three different plugins ('com.rapidminer.java-publishing', 'com.rapidminer.java-publishing.public', 
-  and 'com.rapidminer.java-publishing.open-source')
+  default values defined by different plugins:
+    * 'com.rapidminer.java-publishing'
+    * 'com.rapidminer.java-publishing.public' 
+    * 'com.rapidminer.java-publishing.agpl-v3'
+    * 'com.rapidminer.java-publishing.apache-v2'
+    * 'com.rapidminer.java-publishing.lgpl-v3'
+    * 'com.rapidminer.java-publishing.extension'
 * The 'jar' publication is now called 'war' publication in case the 'war' plugin is applied
 * Removed javaDoc publication as it is now included in the jar/war publication
 

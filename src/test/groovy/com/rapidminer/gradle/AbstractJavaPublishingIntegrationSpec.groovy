@@ -33,13 +33,38 @@ abstract class AbstractJavaPublishingIntegrationSpec extends IntegrationSpec {
         def baseName = getBaseName(version, repoDir)
 
         assert new File(repoDir, "${baseName}.jar").exists()
-        assert new File(repoDir, "${baseName}.pom").exists()
         assert new File(repoDir, "${baseName}-sources.jar").exists() == artifactConfig.publishSources
         assert new File(repoDir, "${baseName}-javadoc.jar").exists() == artifactConfig.publishJavaDoc
         assert new File(repoDir, "${baseName}-test.jar").exists() == artifactConfig.publishTests
         otherArtifacts.each {
             assert new File(repoDir, "${baseName}-${it}.jar").exists()
         }
+    }
+
+    protected void checkPOMContent(String version, ArtifactConfig artifactConfig, PublishingExtension.LicenseType licenseType){
+        checkPOMContent(version, artifactConfig, 'RapidMiner GmbH', 'www.rapidminer.com', licenseType)
+    }
+
+    protected void checkPOMContent(String version, ArtifactConfig artifactConfig, String vendor, String url, PublishingExtension.LicenseType licenseType){
+        File repoDir = getRepoDir(version, artifactConfig)
+        assert repoDir.exists()
+
+        def baseName = getBaseName(version, repoDir)
+
+        def pomFile = new File(repoDir, "${baseName}.pom")
+        assert pomFile.exists()
+        def pomContent = new XmlSlurper().parse(pomFile)
+
+        // check organizationNode node
+        def organizationNode = pomContent.organization
+        assert vendor ? organizationNode.name.text() == vendor : organizationNode.name.text() == ''
+        assert url ? organizationNode.url.text() == url : organizationNode.url.text() == ''
+
+        // check license node
+        def licenseNode = pomContent.licenses.license
+        assert licenseType.name == licenseNode.name.text()
+        assert licenseType.url == licenseNode.url.text()
+        assert licenseType.distribution == licenseNode.distribution.text()
     }
 
     protected File getRepoDir(String version, ArtifactConfig artifactConfig){
@@ -75,7 +100,7 @@ abstract class AbstractJavaPublishingIntegrationSpec extends IntegrationSpec {
             }
 
             publication {
-                baseUrl = 'testRepo'
+                baseUrl 'testRepo'
             }
         """.stripIndent()
 

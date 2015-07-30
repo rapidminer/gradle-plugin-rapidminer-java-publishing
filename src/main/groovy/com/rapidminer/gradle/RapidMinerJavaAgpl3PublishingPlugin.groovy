@@ -14,20 +14,19 @@
  * limitations under the License.
  */
 package com.rapidminer.gradle
-
 /**
- * The java-publishing plugin that uses the 'maven-publish' plugin to preconfigure RapidMiner extension publications.
+ * The java-publishing plugin that uses the 'maven-publish' plugin to preconfigure RapidMiner publications
+ * for public open-source projects.
  *
  * @author Nils Woehler
  *
  */
-class RapidMinerJavaExtensionPublishingPlugin extends AbstractRapidMinerJavaPublishingPlugin {
+class RapidMinerJavaAgpl3PublishingPlugin extends RapidMinerJavaOpenSourcePublishingPlugin {
 
 
     @Override
     def void configurePublicationExtensionDefaults(PublishingExtension extension) {
-        extension.releases = new ArtifactConfig(publishTests: false, publishSources: false, publishJavaDoc: false, repo: 'releases')
-        extension.snapshots = new ArtifactConfig(publishTests: false, publishSources: false, publishJavaDoc: false, repo: 'snapshots')
-        extension.licenseType = PublishingExtension.LicenseType.RM_EULA
+        configureOpenSourcePublicationArtifacts(extension)
+        extension.licenseType = PublishingExtension.LicenseType.AGPL_V3
     }
 }
