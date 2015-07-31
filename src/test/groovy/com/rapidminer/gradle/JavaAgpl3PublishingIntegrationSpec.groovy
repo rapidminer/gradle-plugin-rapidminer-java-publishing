@@ -25,7 +25,7 @@ import nebula.test.functional.ExecutionResult
  */
 class JavaAgpl3PublishingIntegrationSpec extends AbstractJavaPublishingIntegrationSpec {
 
-    def 'Test default Apache V2 release publishing'() {
+    def 'Test default AGPL V3 release publishing'() {
         def version = '0.1.1'
         setup:
         setupProject(version)
@@ -40,7 +40,7 @@ class JavaAgpl3PublishingIntegrationSpec extends AbstractJavaPublishingIntegrati
         checkPOMContent(version, config, PublishingExtension.LicenseTypes.AGPL_V3)
     }
 
-    def 'Test default Apache V2 snapshot publishing'() {
+    def 'Test default AGPL V3 snapshot publishing'() {
         def version = '0.1.1-SNAPSHOT'
         setup:
         setupProject(version)
