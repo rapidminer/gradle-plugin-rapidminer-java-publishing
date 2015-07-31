@@ -15,8 +15,10 @@
  */
 package com.rapidminer.gradle
 
+import org.gradle.api.GradleException
 import org.gradle.api.Plugin
 import org.gradle.api.Project
+import org.gradle.api.XmlProvider
 import org.gradle.api.artifacts.ExcludeRule
 import org.gradle.api.artifacts.ModuleDependency
 import org.gradle.api.artifacts.repositories.MavenArtifactRepository
@@ -109,6 +111,23 @@ abstract class AbstractRapidMinerJavaPublishingPlugin implements Plugin<Project>
                         addArtifactsDynamically mavenPub, extension.snapshots, extension.artifactId, extension.groupId
                     } else {
                         addArtifactsDynamically mavenPub, extension.releases, extension.artifactId, extension.groupId
+                    }
+
+                    if (extension.licenseType) {
+                        mavenPub.pom.withXml { XmlProvider xml ->
+                            def licenseNode = xml.asNode().appendNode('licenses').appendNode('license')
+                            licenseNode.appendNode('name', extension.licenseType.name)
+                            licenseNode.appendNode('url', extension.licenseType.url)
+                            licenseNode.appendNode('distribution', extension.licenseType.distribution)
+                        }
+                    } else {
+                        throw new GradleException("No license type specified. Please specify a type (e.g. via publication {license 'AGPL_V3'}) or apply a publishing plugin with already predefined license type.")
+                    }
+
+                    mavenPub.pom.withXml { XmlProvider xml ->
+                        def orginazationNode = xml.asNode().appendNode('organization')
+                        orginazationNode.appendNode('name').setValue(extension.vendor ?: '')
+                        orginazationNode.appendNode('url').setValue(extension.vendorUrl ?: '')
                     }
                 }
 

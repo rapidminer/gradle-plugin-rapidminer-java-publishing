@@ -32,7 +32,7 @@ class JavaPublishingSnapshotIntegrationSpec extends AbstractJavaPublishingIntegr
         setupProject(VERSION)
 
         when:
-        ExecutionResult result = runTasksSuccessfully('publishJarPublicationToMavenRepository')
+        runTasksSuccessfully('publishJarPublicationToMavenRepository')
 
         then:
         checkMavenRepo(VERSION, new ArtifactConfig(publishTests: true, publishSources: true, publishJavaDoc: false, repo: 'snapshots'))
@@ -50,7 +50,7 @@ class JavaPublishingSnapshotIntegrationSpec extends AbstractJavaPublishingIntegr
         """.stripIndent()
 
         when:
-        ExecutionResult result = runTasksSuccessfully('publishJarPublicationToMavenRepository')
+        runTasksSuccessfully('publishJarPublicationToMavenRepository')
 
         then:
         checkMavenRepo(VERSION, new ArtifactConfig(publishTests: true, publishSources: true, publishJavaDoc: true, repo: 'snapshots'))
@@ -68,7 +68,7 @@ class JavaPublishingSnapshotIntegrationSpec extends AbstractJavaPublishingIntegr
         """.stripIndent()
 
         when:
-        ExecutionResult result = runTasksSuccessfully('publishJarPublicationToMavenRepository')
+        runTasksSuccessfully('publishJarPublicationToMavenRepository')
 
         then:
         checkMavenRepo(VERSION, new ArtifactConfig(publishTests: true, publishSources: false, publishJavaDoc: false, repo: 'snapshots'))
@@ -86,7 +86,7 @@ class JavaPublishingSnapshotIntegrationSpec extends AbstractJavaPublishingIntegr
         """.stripIndent()
 
         when:
-        ExecutionResult result = runTasksSuccessfully('publishJarPublicationToMavenRepository')
+        runTasksSuccessfully('publishJarPublicationToMavenRepository')
 
         then:
         checkMavenRepo(VERSION, new ArtifactConfig(publishTests: false, publishSources: true, publishJavaDoc: false, repo: 'snapshots'))
@@ -104,11 +104,13 @@ class JavaPublishingSnapshotIntegrationSpec extends AbstractJavaPublishingIntegr
         """.stripIndent()
 
         when:
-        ExecutionResult result = runTasksSuccessfully('publishJarPublicationToMavenRepository')
+        def result = runTasksSuccessfully('publishJarPublicationToMavenRepository')
 
         then:
+        def config =  new ArtifactConfig(publishTests: true, publishSources: true, publishJavaDoc: false, repo: 'public-snapshots')
         result.standardOutput.contains('No credentials defined for publication extension. Looking for \'nexusUser\' and \'nexusPassword\' project properties.')
-        checkMavenRepo(VERSION, new ArtifactConfig(publishTests: true, publishSources: true, publishJavaDoc: false, repo: 'public-snapshots'))
+        checkMavenRepo(VERSION, config)
+        checkPOMContent(VERSION, config, PublishingExtension.LicenseTypes.RM_EULA)
     }
 
     def 'Test snapshot publishing with added artifact'() {
@@ -128,11 +130,51 @@ class JavaPublishingSnapshotIntegrationSpec extends AbstractJavaPublishingIntegr
         """.stripIndent()
 
         when:
-        ExecutionResult result = runTasksSuccessfully('publishJarPublicationToMavenRepository')
+        def result = runTasksSuccessfully('publishJarPublicationToMavenRepository')
 
         then:
+        def config = new ArtifactConfig(publishTests: true, publishSources: true, publishJavaDoc: false, repo: 'snapshots')
         result.standardOutput.contains('No credentials defined for publication extension. Looking for \'nexusUser\' and \'nexusPassword\' project properties.')
-        checkMavenRepo(VERSION, new ArtifactConfig(publishTests: true, publishSources: true, publishJavaDoc: false, repo: 'snapshots'), 'utils')
+        checkMavenRepo(VERSION, config, 'utils')
+        checkPOMContent(VERSION, config, PublishingExtension.LicenseTypes.RM_EULA)
+    }
+
+    def 'Test snapshot publishing with different vendor and URL'() {
+        setup:
+        setupProject(VERSION)
+        buildFile  << """
+        publication {
+            vendor = 'Another Company'
+            vendorUrl = 'www.anothercompany.com'
+        }
+        """.stripIndent()
+
+        when:
+        runTasksSuccessfully('publishJarPublicationToMavenRepository')
+
+        then:
+        def config = new ArtifactConfig(publishTests: true, publishSources: true, publishJavaDoc: false, repo: 'snapshots')
+        checkMavenRepo(VERSION, config)
+        checkPOMContent(VERSION, config, 'Another Company', 'www.anothercompany.com', PublishingExtension.LicenseTypes.RM_EULA)
+    }
+
+    def 'Test snapshot publishing with empty vendor and URL'() {
+        setup:
+        setupProject(VERSION)
+        buildFile  << """
+        publication {
+            vendor ''
+            vendorUrl ''
+        }
+        """.stripIndent()
+
+        when:
+        runTasksSuccessfully('publishJarPublicationToMavenRepository')
+
+        then:
+        def config = new ArtifactConfig(publishTests: true, publishSources: true, publishJavaDoc: false, repo: 'snapshots')
+        checkMavenRepo(VERSION, config)
+        checkPOMContent(VERSION, config, '', '', PublishingExtension.LicenseTypes.RM_EULA)
     }
 
     @Override
