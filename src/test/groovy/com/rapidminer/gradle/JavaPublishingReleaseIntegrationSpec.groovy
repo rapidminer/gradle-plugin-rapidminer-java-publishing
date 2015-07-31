@@ -37,7 +37,7 @@ class JavaPublishingReleaseIntegrationSpec extends AbstractJavaPublishingIntegra
         then:
         def config = new ArtifactConfig(publishTests: true, publishSources: true, publishJavaDoc: true, repo: 'releases')
         checkMavenRepo(VERSION, config)
-        checkPOMContent(VERSION, config, PublishingExtension.LicenseType.RM_EULA)
+        checkPOMContent(VERSION, config, PublishingExtension.LicenseTypes.RM_EULA)
     }
 
     def 'Test source release publishing'() {
@@ -57,7 +57,7 @@ class JavaPublishingReleaseIntegrationSpec extends AbstractJavaPublishingIntegra
         then:
         def config = new ArtifactConfig(publishTests: true, publishSources: false, publishJavaDoc: true, repo: 'releases')
         checkMavenRepo(VERSION, config)
-        checkPOMContent(VERSION, config, PublishingExtension.LicenseType.RM_EULA)
+        checkPOMContent(VERSION, config, PublishingExtension.LicenseTypes.RM_EULA)
     }
 
     def 'Test release publishing without javadoc'() {
@@ -77,7 +77,7 @@ class JavaPublishingReleaseIntegrationSpec extends AbstractJavaPublishingIntegra
         then:
         def config = new ArtifactConfig(publishTests: true, publishSources: true, publishJavaDoc: false, repo: 'releases')
         checkMavenRepo(VERSION, config)
-        checkPOMContent(VERSION, config, PublishingExtension.LicenseType.RM_EULA)
+        checkPOMContent(VERSION, config, PublishingExtension.LicenseTypes.RM_EULA)
     }
 
     def 'Test release publishing without tests'() {
@@ -97,7 +97,7 @@ class JavaPublishingReleaseIntegrationSpec extends AbstractJavaPublishingIntegra
         then:
         def config = new ArtifactConfig(publishTests: false, publishSources: true, publishJavaDoc: true, repo: 'releases')
         checkMavenRepo(VERSION, config)
-        checkPOMContent(VERSION, config, PublishingExtension.LicenseType.RM_EULA)
+        checkPOMContent(VERSION, config, PublishingExtension.LicenseTypes.RM_EULA)
     }
 
     def 'Test release publishing with different repo'() {
@@ -117,10 +117,10 @@ class JavaPublishingReleaseIntegrationSpec extends AbstractJavaPublishingIntegra
         then:
         def config = new ArtifactConfig(publishTests: true, publishSources: true, publishJavaDoc: true, repo: 'public-releases')
         checkMavenRepo(VERSION, config)
-        checkPOMContent(VERSION, config, PublishingExtension.LicenseType.RM_EULA)
+        checkPOMContent(VERSION, config, PublishingExtension.LicenseTypes.RM_EULA)
     }
 
-    def 'Test snapshot publishing with added artifact'() {
+    def 'Test release publishing with added artifact'() {
         setup:
         setupProject(VERSION)
         buildFile  << """
@@ -143,10 +143,10 @@ class JavaPublishingReleaseIntegrationSpec extends AbstractJavaPublishingIntegra
         def config = new ArtifactConfig(publishTests: true, publishSources: true, publishJavaDoc: true, repo: 'releases')
         result.standardOutput.contains('No credentials defined for publication extension. Looking for \'nexusUser\' and \'nexusPassword\' project properties.')
         checkMavenRepo(VERSION, config, 'utils')
-        checkPOMContent(VERSION, config, PublishingExtension.LicenseType.RM_EULA)
+        checkPOMContent(VERSION, config, PublishingExtension.LicenseTypes.RM_EULA)
     }
 
-    def 'Test snapshot publishing with different vendor and URL'() {
+    def 'Test release publishing with different vendor and URL'() {
         setup:
         setupProject(VERSION)
         buildFile  << """
@@ -162,10 +162,10 @@ class JavaPublishingReleaseIntegrationSpec extends AbstractJavaPublishingIntegra
         then:
         def config = new ArtifactConfig(publishTests: true, publishSources: true, publishJavaDoc: true, repo: 'releases')
         checkMavenRepo(VERSION, config)
-        checkPOMContent(VERSION, config, 'Another Company', 'www.anothercompany.com', PublishingExtension.LicenseType.RM_EULA)
+        checkPOMContent(VERSION, config, 'Another Company', 'www.anothercompany.com', PublishingExtension.LicenseTypes.RM_EULA)
     }
 
-    def 'Test snapshot publishing with empty vendor and URL'() {
+    def 'Test release publishing with empty vendor and URL'() {
         setup:
         setupProject(VERSION)
         buildFile  << """
@@ -181,7 +181,25 @@ class JavaPublishingReleaseIntegrationSpec extends AbstractJavaPublishingIntegra
         then:
         def config = new ArtifactConfig(publishTests: true, publishSources: true, publishJavaDoc: true, repo: 'releases')
         checkMavenRepo(VERSION, config)
-        checkPOMContent(VERSION, config, '', '', PublishingExtension.LicenseType.RM_EULA)
+        checkPOMContent(VERSION, config, '', '', PublishingExtension.LicenseTypes.RM_EULA)
+    }
+
+    def 'Test release publishing with different license type'() {
+        setup:
+        setupProject(VERSION)
+        buildFile  << """
+        publication {
+            license 'AGPL_V3'
+        }
+        """.stripIndent()
+
+        when:
+        runTasksSuccessfully('publishJarPublicationToMavenRepository')
+
+        then:
+        def config = new ArtifactConfig(publishTests: true, publishSources: true, publishJavaDoc: true, repo: 'releases')
+        checkMavenRepo(VERSION, config)
+        checkPOMContent(VERSION, config, PublishingExtension.LicenseTypes.AGPL_V3)
     }
 
     @Override

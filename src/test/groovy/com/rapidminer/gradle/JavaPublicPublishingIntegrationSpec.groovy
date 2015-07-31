@@ -36,7 +36,7 @@ class JavaPublicPublishingIntegrationSpec extends AbstractJavaPublishingIntegrat
         then:
         def config = new ArtifactConfig(publishTests: true, publishSources: false, publishJavaDoc: true, repo: 'releases-public')
         checkMavenRepo(version, config)
-        checkPOMContent(version, config, PublishingExtension.LicenseType.RM_EULA)
+        checkPOMContent(version, config, PublishingExtension.LicenseTypes.RM_EULA)
     }
 
     def 'Test default public snapshot publishing'() {
@@ -50,7 +50,7 @@ class JavaPublicPublishingIntegrationSpec extends AbstractJavaPublishingIntegrat
         then:
         def config = new ArtifactConfig(publishTests: true, publishSources: true, publishJavaDoc: false, repo: 'snapshots')
         checkMavenRepo(version, config)
-        checkPOMContent(version, config, PublishingExtension.LicenseType.RM_EULA)
+        checkPOMContent(version, config, PublishingExtension.LicenseTypes.RM_EULA)
     }
 
     @Override

@@ -25,7 +25,7 @@ import nebula.test.functional.ExecutionResult
  */
 class JavaExtensionPublishingIntegrationSpec extends AbstractJavaPublishingIntegrationSpec {
 
-    def 'Test default open-source release publishing'() {
+    def 'Test default extension release publishing'() {
         def version = '0.1.1'
         setup:
         setupProject(version)
@@ -36,10 +36,10 @@ class JavaExtensionPublishingIntegrationSpec extends AbstractJavaPublishingInteg
         then:
         def config = new ArtifactConfig(publishTests: false, publishSources: false, publishJavaDoc: false, repo: 'releases')
         checkMavenRepo(version, config)
-        checkPOMContent(version, config, PublishingExtension.LicenseType.RM_EULA)
+        checkPOMContent(version, config, PublishingExtension.LicenseTypes.RM_EULA)
     }
 
-    def 'Test default open-source snapshot publishing'() {
+    def 'Test default extension snapshot publishing'() {
         def version = '0.1.1-SNAPSHOT'
         setup:
         setupProject(version)
@@ -50,7 +50,7 @@ class JavaExtensionPublishingIntegrationSpec extends AbstractJavaPublishingInteg
         then:
         def config = new ArtifactConfig(publishTests: false, publishSources: false, publishJavaDoc: false, repo: 'snapshots')
         checkMavenRepo(version, config)
-        checkPOMContent(version, config, PublishingExtension.LicenseType.RM_EULA)
+        checkPOMContent(version, config, PublishingExtension.LicenseTypes.RM_EULA)
     }
 
     @Override

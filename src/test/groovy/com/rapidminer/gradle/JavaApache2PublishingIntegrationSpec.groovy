@@ -22,7 +22,7 @@ package com.rapidminer.gradle
  */
 class JavaApache2PublishingIntegrationSpec extends AbstractJavaPublishingIntegrationSpec {
 
-    def 'Test default AGPL V3 release publishing'() {
+    def 'Test default Apache V2 release publishing'() {
         def version = '0.1.1'
         setup:
         setupProject(version)
@@ -34,10 +34,10 @@ class JavaApache2PublishingIntegrationSpec extends AbstractJavaPublishingIntegra
         then:
         def config = new ArtifactConfig(publishTests: true, publishSources: true, publishJavaDoc: true, repo: 'releases-public')
         checkMavenRepo(version, config)
-        checkPOMContent(version, config, PublishingExtension.LicenseType.APACHE_V2)
+        checkPOMContent(version, config, PublishingExtension.LicenseTypes.APACHE_V2)
     }
 
-    def 'Test default AGPL V3 snapshot publishing'() {
+    def 'Test default Apache V2 snapshot publishing'() {
         def version = '0.1.1-SNAPSHOT'
         setup:
         setupProject(version)
@@ -48,7 +48,7 @@ class JavaApache2PublishingIntegrationSpec extends AbstractJavaPublishingIntegra
         then:
         def config = new ArtifactConfig(publishTests: true, publishSources: true, publishJavaDoc: false, repo: 'snapshots')
         checkMavenRepo(version, config)
-        checkPOMContent(version, config, PublishingExtension.LicenseType.APACHE_V2)
+        checkPOMContent(version, config, PublishingExtension.LicenseTypes.APACHE_V2)
     }
 
     @Override

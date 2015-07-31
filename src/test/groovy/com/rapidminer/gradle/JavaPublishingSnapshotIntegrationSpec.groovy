@@ -110,7 +110,7 @@ class JavaPublishingSnapshotIntegrationSpec extends AbstractJavaPublishingIntegr
         def config =  new ArtifactConfig(publishTests: true, publishSources: true, publishJavaDoc: false, repo: 'public-snapshots')
         result.standardOutput.contains('No credentials defined for publication extension. Looking for \'nexusUser\' and \'nexusPassword\' project properties.')
         checkMavenRepo(VERSION, config)
-        checkPOMContent(VERSION, config, PublishingExtension.LicenseType.RM_EULA)
+        checkPOMContent(VERSION, config, PublishingExtension.LicenseTypes.RM_EULA)
     }
 
     def 'Test snapshot publishing with added artifact'() {
@@ -136,7 +136,7 @@ class JavaPublishingSnapshotIntegrationSpec extends AbstractJavaPublishingIntegr
         def config = new ArtifactConfig(publishTests: true, publishSources: true, publishJavaDoc: false, repo: 'snapshots')
         result.standardOutput.contains('No credentials defined for publication extension. Looking for \'nexusUser\' and \'nexusPassword\' project properties.')
         checkMavenRepo(VERSION, config, 'utils')
-        checkPOMContent(VERSION, config, PublishingExtension.LicenseType.RM_EULA)
+        checkPOMContent(VERSION, config, PublishingExtension.LicenseTypes.RM_EULA)
     }
 
     def 'Test snapshot publishing with different vendor and URL'() {
@@ -155,7 +155,7 @@ class JavaPublishingSnapshotIntegrationSpec extends AbstractJavaPublishingIntegr
         then:
         def config = new ArtifactConfig(publishTests: true, publishSources: true, publishJavaDoc: false, repo: 'snapshots')
         checkMavenRepo(VERSION, config)
-        checkPOMContent(VERSION, config, 'Another Company', 'www.anothercompany.com', PublishingExtension.LicenseType.RM_EULA)
+        checkPOMContent(VERSION, config, 'Another Company', 'www.anothercompany.com', PublishingExtension.LicenseTypes.RM_EULA)
     }
 
     def 'Test snapshot publishing with empty vendor and URL'() {
@@ -174,7 +174,7 @@ class JavaPublishingSnapshotIntegrationSpec extends AbstractJavaPublishingIntegr
         then:
         def config = new ArtifactConfig(publishTests: true, publishSources: true, publishJavaDoc: false, repo: 'snapshots')
         checkMavenRepo(VERSION, config)
-        checkPOMContent(VERSION, config, '', '', PublishingExtension.LicenseType.RM_EULA)
+        checkPOMContent(VERSION, config, '', '', PublishingExtension.LicenseTypes.RM_EULA)
     }
 
     @Override

@@ -22,7 +22,7 @@ package com.rapidminer.gradle
  */
 class JavaLgpl3PublishingIntegrationSpec extends AbstractJavaPublishingIntegrationSpec {
 
-    def 'Test default AGPL V3 release publishing'() {
+    def 'Test default LGPL V3 release publishing'() {
         def version = '0.1.1'
         setup:
         setupProject(version)
@@ -34,10 +34,10 @@ class JavaLgpl3PublishingIntegrationSpec extends AbstractJavaPublishingIntegrati
         then:
         def config = new ArtifactConfig(publishTests: true, publishSources: true, publishJavaDoc: true, repo: 'releases-public')
         checkMavenRepo(version, config)
-        checkPOMContent(version, config, PublishingExtension.LicenseType.LGPL_V3)
+        checkPOMContent(version, config, PublishingExtension.LicenseTypes.LGPL_V3)
     }
 
-    def 'Test default AGPL V3 snapshot publishing'() {
+    def 'Test default LGPL V3 snapshot publishing'() {
         def version = '0.1.1-SNAPSHOT'
         setup:
         setupProject(version)
@@ -48,7 +48,7 @@ class JavaLgpl3PublishingIntegrationSpec extends AbstractJavaPublishingIntegrati
         then:
         def config = new ArtifactConfig(publishTests: true, publishSources: true, publishJavaDoc: false, repo: 'snapshots')
         checkMavenRepo(version, config)
-        checkPOMContent(version, config, PublishingExtension.LicenseType.LGPL_V3)
+        checkPOMContent(version, config, PublishingExtension.LicenseTypes.LGPL_V3)
     }
 
     @Override
