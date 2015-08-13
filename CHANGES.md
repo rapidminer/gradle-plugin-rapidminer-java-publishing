@@ -1,5 +1,7 @@
 ## Change Log
 
+#### 0.2.1
+
 #### 0.2.0
 * Streamlined publishing configuration by adding a plugin extension called 'publication' that ships with highly opinionated 
   default values defined by different plugins:
