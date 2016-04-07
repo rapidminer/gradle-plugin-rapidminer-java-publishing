@@ -1,4 +1,4 @@
-plugins { id 'com.rapidminer.gradle-plugin' version '0.3.5' }
+plugins { id 'com.rapidminer.gradle-plugin' version '0.4.1' }
 
 gradlePlugin { id 'java-publishing' }
 
