@@ -1,6 +1,7 @@
 ## Change Log
 
 #### 0.2.1
+* Changed publishing repository for open-source artifacts to 'snapshot-public'
 
 #### 0.2.0
 * Streamlined publishing configuration by adding a plugin extension called 'publication' that ships with highly opinionated 

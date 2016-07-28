@@ -31,6 +31,6 @@ class RapidMinerJavaOpenSourcePublishingPlugin extends AbstractRapidMinerJavaPub
 
     def configureOpenSourcePublicationArtifacts(PublishingExtension extension){
         extension.releases = new ArtifactConfig(publishTests: true, publishSources: true, publishJavaDoc: true, repo: 'releases-public')
-        extension.snapshots = new ArtifactConfig(publishTests: true, publishSources: true, publishJavaDoc: false, repo: 'snapshots')
+        extension.snapshots = new ArtifactConfig(publishTests: true, publishSources: true, publishJavaDoc: false, repo: 'snapshots-public')
     }
 }
