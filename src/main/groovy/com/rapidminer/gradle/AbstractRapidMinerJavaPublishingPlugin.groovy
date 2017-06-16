@@ -247,7 +247,7 @@ abstract class AbstractRapidMinerJavaPublishingPlugin implements Plugin<Project>
 
             // Wait for the maven-publishing plugin to be applied.
             project.plugins.withType(PublishingPlugin) { PublishingPlugin publishingPlugin ->
-                DefaultPublishingExtension publishingExtension = project.getExtensions().getByType(DefaultPublishingExtension)
+                org.gradle.api.publish.PublishingExtension publishingExtension = project.getExtensions().getByType(org.gradle.api.publish.PublishingExtension)
                 publishingExtension.repositories.withType(MavenArtifactRepository, repoClosure)
             }
         }
@@ -272,7 +272,7 @@ abstract class AbstractRapidMinerJavaPublishingPlugin implements Plugin<Project>
 
             // Wait for the maven-publishing plugin to be applied.
             project.plugins.withType(PublishingPlugin) { PublishingPlugin publishingPlugin ->
-                DefaultPublishingExtension publishingExtension = project.getExtensions().getByType(DefaultPublishingExtension)
+                org.gradle.api.publish.PublishingExtension publishingExtension = project.getExtensions().getByType(org.gradle.api.publish.PublishingExtension)
                 publishingExtension.publications.withType(MavenPublication, withPubClosure)
             }
         }
