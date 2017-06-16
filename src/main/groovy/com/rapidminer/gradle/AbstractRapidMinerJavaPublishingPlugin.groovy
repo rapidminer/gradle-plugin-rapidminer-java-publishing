@@ -23,7 +23,6 @@ import org.gradle.api.artifacts.ExcludeRule
 import org.gradle.api.artifacts.ModuleDependency
 import org.gradle.api.artifacts.repositories.MavenArtifactRepository
 import org.gradle.api.plugins.JavaPlugin
-import org.gradle.api.publish.internal.DefaultPublishingExtension
 import org.gradle.api.publish.maven.MavenPublication
 import org.gradle.api.publish.plugins.PublishingPlugin
 import org.gradle.api.tasks.bundling.Jar
@@ -247,7 +246,7 @@ abstract class AbstractRapidMinerJavaPublishingPlugin implements Plugin<Project>
 
             // Wait for the maven-publishing plugin to be applied.
             project.plugins.withType(PublishingPlugin) { PublishingPlugin publishingPlugin ->
-                DefaultPublishingExtension publishingExtension = project.getExtensions().getByType(DefaultPublishingExtension)
+                org.gradle.api.publish.PublishingExtension publishingExtension = project.getExtensions().getByType(org.gradle.api.publish.PublishingExtension)
                 publishingExtension.repositories.withType(MavenArtifactRepository, repoClosure)
             }
         }
@@ -272,7 +271,7 @@ abstract class AbstractRapidMinerJavaPublishingPlugin implements Plugin<Project>
 
             // Wait for the maven-publishing plugin to be applied.
             project.plugins.withType(PublishingPlugin) { PublishingPlugin publishingPlugin ->
-                DefaultPublishingExtension publishingExtension = project.getExtensions().getByType(DefaultPublishingExtension)
+                org.gradle.api.publish.PublishingExtension publishingExtension = project.getExtensions().getByType(org.gradle.api.publish.PublishingExtension)
                 publishingExtension.publications.withType(MavenPublication, withPubClosure)
             }
         }
