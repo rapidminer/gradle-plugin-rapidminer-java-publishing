@@ -1,5 +1,7 @@
 ## Change Log
 
+#### 0.2.2
+
 #### 0.2.1
 * Changed publishing repository for open-source artifacts to 'snapshot-public'
 * Fixes Gradle 3.5 incompatibility
